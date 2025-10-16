@@ -1,0 +1,32 @@
+const components = {
+  "FlashcardCreator": "AppComponents",
+  "HomePage": "AppComponents",
+  "Playground": "AppComponents",
+  "Button": "Visual",
+  "Card": "Visual",
+  "Checkbox": "Visual",
+  "CodeVisualizer": "Visual",
+  "Details": "Visual",
+  "DropDown": "Visual",
+  "Flashcard": "Visual",
+  "Grid": "Visual",
+  "Icon": "Visual",
+  "Input": "Visual",
+  "Layout": "Visual",
+  "Loading": "Visual",
+  "MultiRoute": "Visual",
+  "Navbar": "Visual",
+  "NotFound": "Visual",
+  "Route": "Visual",
+  "Select": "Visual",
+  "Switch": "Visual",
+  "TreeItem": "Visual",
+  "TreeView": "Visual",
+  "FetchManager": "Service",
+  "IndexedDbManager": "Service",
+  "Link": "Service",
+  "LocalStorageManager": "Service",
+  "Translator": "Service"
+};
+
+export default components;

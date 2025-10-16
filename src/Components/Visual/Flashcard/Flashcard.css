@@ -1,0 +1,53 @@
+/* Reemplazamos :host con el nombre de la etiqueta del componente */
+slice-flashcard {
+    display: inline-block;
+    perspective: 1000px;
+    width: 300px;
+    height: 200px;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    /* CAMBIO: Usamos una curva de aceleración 'cubic-bezier' para un efecto más elástico y aumentamos la duración */
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+/* La regla de giro ahora usa el nombre de la etiqueta */
+slice-flashcard.is-flipped .flashcard-inner {
+    /* CAMBIO: Además de girar, la tarjeta ahora rota en el eje Z y escala un poco */
+    transform: rotateY(180deg) rotateZ(5deg) scale(1.05);
+}
+
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.flashcard-front {
+    background-color: #f0f0f0;
+    color: black;
+}
+
+.flashcard-back {
+    background-color: #2980b9;
+    color: white;
+    transform: rotateY(180deg); /* La posiciona girada desde el inicio */
+}

@@ -1,0 +1,29 @@
+{
+  "name": "flashcards-component-slicejs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "slice:init": "node node_modules/slicejs-cli/client.js init",
+    "slice:start": "node api/index.js --development",
+    "slice:version": "node node_modules/slicejs-cli/client.js version",
+    "slice:update": "node node_modules/slicejs-cli/client.js update",
+    "slice:create": "node node_modules/slicejs-cli/client.js component create",
+    "slice:list": "node node_modules/slicejs-cli/client.js component list",
+    "slice:delete": "node node_modules/slicejs-cli/client.js component delete",
+    "slice:get": "node node_modules/slicejs-cli/client.js get",
+    "slice:browse": "node node_modules/slicejs-cli/client.js browse",
+    "slice:sync": "node node_modules/slicejs-cli/client.js sync",
+    "run": "node api/index.js --development"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "slicejs-cli": "^2.3.3"
+  }
+}
