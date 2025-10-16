@@ -11,16 +11,14 @@ export default class Flashcard extends HTMLElement {
     slice.controller.setComponentProps(this, props);
   }
 
-  // Se ejecuta cuando el elemento se añade al DOM. Es el lugar seguro para manipular el DOM.
   connectedCallback() {
-    // Solo hacemos esto una vez para evitar duplicar elementos o listeners
     if (!this.isInitialized) {
       this.$front = this.querySelector('.flashcard-front');
       this.$back = this.querySelector('.flashcard-back');
       this.addEventListener('click', this.flipCard);
       this.isInitialized = true;
       
-      // Actualizamos el texto por si las propiedades se establecieron antes de que esto se ejecutara
+ 
       this.updateInitialText();
     }
   }
@@ -37,7 +35,7 @@ export default class Flashcard extends HTMLElement {
   get ['front-text']() { return this._frontText; }
   set ['front-text'](value) {
     this._frontText = value;
-    if (this.$front) { // Si el elemento ya ha sido encontrado, actualiza el texto
+    if (this.$front) { 
         this.$front.textContent = value;
     }
   }
@@ -45,7 +43,7 @@ export default class Flashcard extends HTMLElement {
   get ['back-text']() { return this._backText; }
   set ['back-text'](value) {
     this._backText = value;
-    if (this.$back) { // Si el elemento ya ha sido encontrado, actualiza el texto
+    if (this.$back) { 
         this.$back.textContent = value;
     }
   }

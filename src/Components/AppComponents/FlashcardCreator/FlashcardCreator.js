@@ -1,13 +1,11 @@
 import '../../Visual/Flashcard/Flashcard.js';
 
-// La clase se debe exportar como default para que el import() dinámico del router funcione.
 export default class FlashcardCreator extends HTMLElement {
     constructor(props) {
         super();
-        // Asumo que 'slice' es una variable global en tu framework
         slice.attachTemplate(this);
         slice.controller.setComponentProps(this, props);
-        this.deck = []; // Array para guardar las tarjetas
+        this.deck = []; 
     }
 
     async init() {
@@ -35,7 +33,7 @@ export default class FlashcardCreator extends HTMLElement {
         formSection.append(fromLangInput, toLangInput, frontInput, backInput, addButton);
         container.appendChild(formSection);
 
-        // --- Sección de Previsualización ---
+        // --- Sección de Preview ---
         const previewSection = document.createElement('div');
         const previewTitle = document.createElement('h2');
         previewTitle.textContent = 'Preview';
@@ -53,7 +51,6 @@ export default class FlashcardCreator extends HTMLElement {
         deckTitle.innerHTML = 'Cards in this deck (<span id="card-count">0</span>)';
         const deckList = document.createElement('div');
         deckList.id = 'deck-list';
-        // Añadimos estilos para que las tarjetas se organicen bien
         deckList.style.display = 'flex';
         deckList.style.flexWrap = 'wrap';
         deckList.style.gap = '10px';
@@ -65,6 +62,7 @@ export default class FlashcardCreator extends HTMLElement {
         container.appendChild(deckSection);
 
         // --- Lógica de Eventos ---
+
         const updatePreview = () => {
             previewCard.setAttribute('front-text', frontInput.value || 'Front');
             previewCard.setAttribute('back-text', backInput.value || 'Back');
@@ -73,7 +71,6 @@ export default class FlashcardCreator extends HTMLElement {
         frontInput.addEventListener('input', updatePreview);
         backInput.addEventListener('input', updatePreview);
 
-        // --- CAMBIO AQUÍ: Lógica para añadir la tarjeta al mazo ---
         addButton.addEventListener('click', async () => {
             const frontText = frontInput.value;
             const backText = backInput.value;
@@ -83,25 +80,19 @@ export default class FlashcardCreator extends HTMLElement {
                 return;
             }
             
-            // 1. Añadimos los datos al array del mazo
             this.deck.push({ front: frontText, back: backText });
             
-            // 2. Creamos un nuevo componente Flashcard para mostrarlo en la lista
             const newCardInDeck = await slice.build('Flashcard', {
                 'front-text': frontText,
                 'back-text': backText
             });
-            // Hacemos las tarjetas de la lista más pequeñas
             newCardInDeck.style.transform = 'scale(0.5)';
             newCardInDeck.style.transformOrigin = 'top left';
             
-            // 3. Añadimos el nuevo componente a la lista del mazo
             deckList.appendChild(newCardInDeck);
 
-            // 4. Actualizamos el contador
             deckTitle.querySelector('#card-count').textContent = this.deck.length;
 
-            // 5. Limpiamos los inputs y la previsualización
             frontInput.value = '';
             backInput.value = '';
             updatePreview();
@@ -112,6 +103,4 @@ export default class FlashcardCreator extends HTMLElement {
     }
 }
 
-// La definición del custom element es para usarlo en HTML, pero el router lo instancia por su clase.
-// Es buena práctica mantenerlo de todas formas.
 customElements.define("flashcard-creator", FlashcardCreator); 
