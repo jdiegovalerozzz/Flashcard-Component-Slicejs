@@ -29,7 +29,6 @@ export default class FlashcardCreator extends HTMLElement {
         
         deckOptions.push({ value: 'CREATE_NEW', text: 'Create a new deck...' });
 
-        // Contenedor para los campos de creación de nuevo mazo (inicialmente oculto)
         const newDeckFields = document.createElement('div');
         newDeckFields.style.display = 'none';
         newDeckFields.style.marginTop = '10px';
@@ -44,7 +43,6 @@ export default class FlashcardCreator extends HTMLElement {
         });
         newDeckFields.append(newDeckNameInput, newDeckDifficultySelect);
 
-        // Creación del selector de mazos con la lógica onOptionSelect
         const deckSelector = await slice.build('Select', {
             label: 'Select a Deck',
             options: deckOptions,
@@ -58,7 +56,7 @@ export default class FlashcardCreator extends HTMLElement {
         });
         
         deckSection.appendChild(deckSelector);
-        deckSection.appendChild(newDeckFields); // Añadimos los campos ocultos al DOM
+        deckSection.appendChild(newDeckFields);
         container.appendChild(deckSection);
 
         // --- 2. Sección del Formulario de la Tarjeta ---

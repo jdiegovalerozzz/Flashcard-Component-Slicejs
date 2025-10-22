@@ -9,6 +9,7 @@ const components = {
   "Details": "Visual",
   "DropDown": "Visual",
   "Flashcard": "Visual",
+  "FlashcardModal": "Visual",
   "Grid": "Visual",
   "Icon": "Visual",
   "Input": "Visual",

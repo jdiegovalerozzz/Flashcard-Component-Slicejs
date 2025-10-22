@@ -80,7 +80,7 @@ export default class IndexedDbManager {
          const request = store.put(item);
 
          request.onsuccess = () => {
-            resolve(item); // Devolvemos el item actualizado
+            resolve(item); 
          };
 
          request.onerror = (event) => {

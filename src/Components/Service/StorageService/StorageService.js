@@ -1,11 +1,9 @@
 import IndexedDbManager from '../IndexedDbManager/IndexedDbManager.js';
 
-// 1. Creamos una variable fuera de la clase para mantener la instancia única.
 let instance = null;
 
 export default class StorageService {
   constructor(props) {
-    // 2. Si ya existe una instancia, la devolvemos inmediatamente.
     if (instance) {
       return instance;
     }
@@ -17,11 +15,9 @@ export default class StorageService {
 
     this.dbManager = new IndexedDbManager(DB_NAME, STORE_NAMES);
     
-    // 3. Guardamos esta nueva instancia en nuestra variable.
     instance = this;
   }
 
-  // El resto del código permanece exactamente igual...
   async init() {
     try {
       await this.dbManager.openDatabase();
