@@ -87,7 +87,8 @@ export default class Select extends HTMLElement {
             if (this._value.length === 1 && !this.multiple) {
                this.removeOptionFromValue(this._value[0]);
                this.addSelectedOption(option);
-               if (this.onOptionSelect) await this.onOptionSelect.call(this);
+               // CAMBIO AQUÍ: Se pasa 'option' como argumento
+               if (this.onOptionSelect) await this.onOptionSelect.call(this, option);
                return;
             }
 
@@ -98,7 +99,8 @@ export default class Select extends HTMLElement {
                this.addSelectedOption(option);
                opt.classList.add('active');
             }
-            if (this.onOptionSelect) await this.onOptionSelect.call(this);
+            // Y CAMBIO AQUÍ TAMBIÉN: Se pasa 'option' como argumento
+            if (this.onOptionSelect) await this.onOptionSelect.call(this, option);
          });
          this.$menu.appendChild(opt);
       });
@@ -263,6 +265,8 @@ export default class Select extends HTMLElement {
 
       return true;
    }
+
+   
 }
 
 customElements.define('slice-select', Select);

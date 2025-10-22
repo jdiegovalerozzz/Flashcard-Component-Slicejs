@@ -1,196 +1,85 @@
+import StorageService from '../../Service/StorageService/StorageService.js';
+import '../../Visual/Flashcard/Flashcard.js'; 
+
 export default class HomePage extends HTMLElement {
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      
-      this.$examplesContainer = this.querySelector('.examples-container');
-      
-      slice.controller.setComponentProps(this, props);
-      this.debuggerProps = [];
-   }
+    constructor(props) {
+        super();
+        slice.attachTemplate(this);
+        slice.controller.setComponentProps(this, props);
+        this.storageService = new StorageService();
+    }
 
-   async init() {
-      // Crear la barra de navegación
-      const navbar = await slice.build('Navbar', {
-         position: 'fixed',
-         logo: {
-            src: '/images/Slice.js-logo.png',
-            path: '/',
-         },
-         items: [
-            { text: 'Home', path: '/' },
-            { text: 'Playground', path: '/Playground' },
+    async init() {
+        await this.storageService.init();
 
-         ],
-         buttons: [
-            {
-               value: 'Change Theme',
-               onClickCallback: async () => {
-                  const currentTheme = slice.stylesManager.themeManager.currentTheme;
-                  if (currentTheme === 'Slice') {
-                     await slice.setTheme('Light');
-                  } else if (currentTheme === 'Light') {
-                     await slice.setTheme('Dark');
-                  } else {
-                     await slice.setTheme('Slice');
-                  }
-               },
-            },
-         ],
-      });
-      
-      // Crear botones para la sección de llamada a la acción
-      const docsButton = await slice.build('Button', {
-         value: 'Documentation',
-         onClickCallback: () => //redirect to https://slice-js-docs.vercel.app/Documentation
-         window.open('https://slice-js-docs.vercel.app/Documentation', '_blank'),
-         customColor: {
-            button: 'var(--primary-color)',
-            label: 'var(--primary-color-contrast)'
-         }
-      });
-      
-      const componentsButton = await slice.build('Button', {
-         value: 'Components Library',
-         onClickCallback: () => window.open('https://slice-js-docs.vercel.app/Documentation/Visual', '_blank'),
-         customColor: {
-            button: 'var(--secondary-color)',
-            label: 'var(--secondary-color-contrast)'
-         }
-      });
-      
-      // Añadir botones a la sección CTA
-      this.querySelector('.cta-buttons').appendChild(docsButton);
-      this.querySelector('.cta-buttons').appendChild(componentsButton);
-      
-      // Crear features section con un enfoque diferente (sin usar Cards)
-      await this.createFeatures();
-      
-      // Crear ejemplos de componentes
-      await this.createComponentExamples();
-      
-      // Configurar la sección de código de inicio
-      await this.setupGettingStartedSection();
-      
-      // Añadir la barra de navegación al inicio del componente
-      this.insertBefore(navbar, this.firstChild);
-   }
-   
-   async createFeatures() {
-      // Definir características
-      const features = [
-         {
-            title: 'Component-Based',
-            description: 'Build your app using modular, reusable components following web standards.'
-         },
-         {
-            title: 'Zero Dependencies',
-            description: 'Built with vanilla JavaScript. No external libraries required.'
-         },
-         {
-            title: 'Easy Routing',
-            description: 'Simple and powerful routing system for single page applications.'
-         },
-         {
-            title: 'Theme System',
-            description: 'Built-in theme support with easy customization through CSS variables.'
-         },
-         {
-            title: 'Developer Tools',
-            description: 'Integrated debugging and logging for faster development.'
-         },
-         {
-            title: 'Performance Focused',
-            description: 'Lightweight and optimized for fast loading and execution.'
-         }
-      ];
-      
-      const featureGrid = this.querySelector('.feature-grid');
-      
-      // Crear y añadir cada feature como un elemento HTML simple
-      for (const feature of features) {
-         const featureElement = document.createElement('div');
-         featureElement.classList.add('feature-item');
-         
-         const featureTitle = document.createElement('h3');
-         featureTitle.textContent = feature.title;
-         featureTitle.classList.add('feature-title');
-         
-         const featureDescription = document.createElement('p');
-         featureDescription.textContent = feature.description;
-         featureDescription.classList.add('feature-description');
-         
-         featureElement.appendChild(featureTitle);
-         featureElement.appendChild(featureDescription);
-         
-         featureGrid.appendChild(featureElement);
-      }
-   }
-   
-   async createComponentExamples() {
-      // Crear ejemplos para demostrar componentes
-      const inputExample = await slice.build('Input', {
-         placeholder: 'Try typing here...',
-         type: 'text'
-      });
-      
-      const switchExample = await slice.build('Switch', {
-         label: 'Toggle me',
-         checked: true
-      });
-      
-      const checkboxExample = await slice.build('Checkbox', {
-         label: 'Check me',
-         labelPlacement: 'right'
-      });
-      
-      const detailsExample = await slice.build('Details', {
-         title: 'Click to expand',
-         text: 'This is a collapsible details component that can contain any content.'
-      });
-      
-      // Crear sección para cada ejemplo
-      const exampleSections = [
-         { title: 'Input Component', component: inputExample },
-         { title: 'Switch Component', component: switchExample },
-         { title: 'Checkbox Component', component: checkboxExample },
-         { title: 'Details Component', component: detailsExample }
-      ];
-      
-      // Añadir cada ejemplo a la sección de ejemplos
-      for (const section of exampleSections) {
-         const container = document.createElement('div');
-         container.classList.add('example-item');
-         
-         const title = document.createElement('h3');
-         title.textContent = section.title;
-         
-         container.appendChild(title);
-         container.appendChild(section.component);
-         
-         this.$examplesContainer.appendChild(container);
-      }
-   }
-   
-   async setupGettingStartedSection() {
-      // Opcionalmente podríamos mejorar esta sección usando el CodeVisualizer component
-      // en lugar del código HTML estático en el template
-      const codeVisualizer = await slice.build('CodeVisualizer', {
-         value: `// Initialize a new Slice.js project
-npm run slice:init
+        const container = document.createElement('div');
+        container.style.padding = '20px';
+        container.style.fontFamily = 'sans-serif';
 
-// Create a new component
-npm run slice:create
+        // --- Título y Botón de Crear ---
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
 
-// Start your application
-npm run slice:start`,
-         language: 'bash'
-      });
-      
-      const codeSample = this.querySelector('.code-sample');
-      codeSample.innerHTML = ''; // Clear the static code sample
-      codeSample.appendChild(codeVisualizer);
-   }
+        const title = document.createElement('h1');
+        title.textContent = 'My Decks';
+        
+        const createButton = await slice.build('Button', { value: 'Create New Deck' });
+        createButton.addEventListener('click', () => {
+            slice.router.navigate('/create-flashcard');
+        });
+
+        header.append(title, createButton);
+        container.appendChild(header);
+
+        // --- Cargar y Mostrar los Mazos ---
+        const decks = await this.storageService.getAllDecks();
+
+        if (decks.length === 0) {
+            const noDecksMessage = document.createElement('p');
+            noDecksMessage.textContent = 'You have no decks yet. Click "Create New Deck" to get started!';
+            noDecksMessage.style.marginTop = '20px';
+            container.appendChild(noDecksMessage);
+        } else {
+            for (const deck of decks) {
+                // Contenedor para cada mazo
+                const deckContainer = document.createElement('div');
+                deckContainer.style.marginTop = '30px';
+                deckContainer.style.border = '1px solid #eee';
+                deckContainer.style.padding = '15px';
+                deckContainer.style.borderRadius = '8px';
+
+                const deckTitle = document.createElement('h2');
+                deckTitle.textContent = `${deck.name} (${deck.difficulty})`;
+                deckContainer.appendChild(deckTitle);
+
+                // Grid para las tarjetas de este mazo
+                const cardGrid = document.createElement('div');
+                cardGrid.style.display = 'flex';
+                cardGrid.style.flexWrap = 'wrap';
+                cardGrid.style.gap = '10px';
+                cardGrid.style.marginTop = '15px';
+
+                const cards = await this.storageService.getFlashcardsByDeck(deck.id);
+                
+                for (const card of cards) {
+                    const cardComponent = await slice.build('Flashcard', {
+                        'front-text': card.front,
+                        'back-text': card.back
+                    });
+                    cardComponent.style.transform = 'scale(0.5)';
+                    cardComponent.style.transformOrigin = 'top left';
+                    cardGrid.appendChild(cardComponent);
+                }
+
+                deckContainer.appendChild(cardGrid);
+                container.appendChild(deckContainer);
+            }
+        }
+
+        this.appendChild(container);
+    }
 }
 
-customElements.define('slice-home-page', HomePage);
+customElements.define('home-page', HomePage);

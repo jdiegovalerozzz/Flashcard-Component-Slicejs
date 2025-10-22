@@ -26,6 +26,7 @@ const components = {
   "IndexedDbManager": "Service",
   "Link": "Service",
   "LocalStorageManager": "Service",
+  "StorageService": "Service",
   "Translator": "Service"
 };
 
