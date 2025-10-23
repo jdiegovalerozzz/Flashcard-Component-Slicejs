@@ -65,6 +65,45 @@
     border-bottom: 2px solid #e2e8f0;
 }
 
+#card-form-section {
+    padding-bottom: 40px;
+}   
+
+#audio-file-input {
+    display: none;
+}
+
+.audio-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    background-color: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: #e2e8f0;
+    border-color: #cbd5e0;
+    color: #2d3748;
+}
+
+.file-name-display {
+    font-style: italic;
+    color: #4a5568;
+    margin-top: 0; 
+}
+
 #deck-section {
     position: relative;
     z-index: 30;
@@ -138,7 +177,6 @@ select:focus {
     transform: translateY(0);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .creator-container {
         padding: 16px;
@@ -168,7 +206,6 @@ select:focus {
     }
 }
 
-/* Animaciones de entrada suaves */
 @keyframes fadeInUp {
     from {
         opacity: 0;

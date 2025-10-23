@@ -36,7 +36,15 @@ export default class HomePage extends HTMLElement {
     }
 
     async update() {
-        console.log('[HomePage] Update llamado. Refrescando el dashboard...');
+        // --- Limpieza recomendada antes de refrescar ---
+        if (this.decksGrid) {
+            slice.controller.destroyByContainer(this.decksGrid);
+            this.decksGrid.innerHTML = '';
+        }
+        if (this.allCardsGrid) {
+            slice.controller.destroyByContainer(this.allCardsGrid);
+            this.allCardsGrid.innerHTML = '';
+        }
         await this.renderDashboard();
     }
 
@@ -61,7 +69,7 @@ export default class HomePage extends HTMLElement {
 
         const filteredDecks = targetLangCode
             ? allDecks.filter(deck => deck.languageCode === targetLangCode)
-            : allDecks; // If theres no language selected, show all decks
+            : allDecks;
 
         if (filteredDecks.length === 0) {
             if (targetLangCode) {
@@ -105,13 +113,11 @@ export default class HomePage extends HTMLElement {
             </div>
         `;
 
-        // --- INICIO DEL CAMBIO ---
         const editButton = cardEl.querySelector('.action-button.edit');
         editButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evita que el clic navegue a la página del mazo.
+            e.stopPropagation();
             slice.router.navigate(`/edit-deck/${deck.id}`);
         });
-        // --- FIN DEL CAMBIO ---
 
         const deleteButton = cardEl.querySelector('.action-button.delete');
         deleteButton.addEventListener('click', async (e) => {

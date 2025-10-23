@@ -5,26 +5,31 @@
     </header>
 
     <main class="creator-main">
-        <!-- Sección para seleccionar o crear un mazo -->
         <section id="deck-section" class="form-section">
-            <h2>Deck</h2>
-            <div id="deck-selector-container">
-                <!-- El componente Select para mazos existentes se insertará aquí -->
-            </div>
-            <div id="new-deck-fields" style="display: none; margin-top: 10px;">
-                <!-- Los inputs para crear un nuevo mazo se insertarán aquí -->
-            </div>
+            <h2>Deck Selection</h2>
+            <div id="deck-selector-container"></div>
+            <div id="new-deck-fields" style="display: none;"></div>
         </section>
 
-        <!-- Sección para el contenido de la tarjeta -->
         <section id="card-form-section" class="form-section">
-            <h2>Card Content</h2>
-            <!-- Los inputs para el frente, reverso, etc., se insertarán aquí -->
+            
         </section>
 
-        <!-- Botón de guardado -->
-        <div class="creator-actions">
-            <button id="save-card-button" class="button-primary">Save Card</button>
-        </div>
+        <section id="audio-section" class="form-section">
+            <h2>Audio Attachment</h2>
+            <p>Optionally, attach an audio file (.mp3, .wav, etc.) to this card.</p>
+            <div class="audio-upload-container">
+                <label for="audio-file-input" class="custom-file-upload">
+                    Choose File
+                </label>
+                <input type="file" id="audio-file-input" accept="audio/*">
+                <span id="audio-file-name" class="file-name-display">No file chosen</span>
+            </div>
+        </section>
+
     </main>
+
+    <footer class="creator-actions">
+        <button id="save-card-button" class="button-primary">Save Card</button>
+    </footer>
 </div>
