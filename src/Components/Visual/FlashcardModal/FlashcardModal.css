@@ -1,6 +1,5 @@
 slice-flashcardmodal {
     display: none;
-    /* Se mantiene para el control inicial */
     position: fixed;
     top: 0;
     left: 0;
@@ -17,101 +16,300 @@ slice-flashcardmodal.is-visible {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(74, 93, 111, 0.75);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.3s ease-out;
-    /* Animación de entrada */
 }
 
 @keyframes fadeIn {
     from {
-        background-color: rgba(0, 0, 0, 0);
+        background-color: rgba(74, 93, 111, 0);
+        backdrop-filter: blur(0px);
     }
 
     to {
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(74, 93, 111, 0.75);
+        backdrop-filter: blur(4px);
     }
 }
 
 .modal-content {
     background: white;
-    padding: 25px;
-    border-radius: 10px;
+    padding: 30px;
+    border-radius: 16px;
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     position: relative;
     display: grid;
-    gap: 20px;
+    gap: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .close-button {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
+    top: 15px;
+    right: 20px;
+    background: #f7fafc;
     border: none;
-    font-size: 2rem;
+    font-size: 1.8rem;
     cursor: pointer;
-    color: #888;
+    color: #718096;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    background: #e2e8f0;
+    color: #2d3748;
+    transform: rotate(90deg);
 }
 
 .card-display-area {
     display: flex;
     justify-content: center;
+    padding: 10px 0;
 }
 
-/* --- INICIO DEL CAMBIO CLAVE: Animación de los controles --- */
-
-/* 1. Ocultamos estas secciones usando opacity y max-height para poder animarlas */
+/* Animación de controles */
 .card-details-area,
 .card-actions-area,
 .study-controls-area,
 .navigation-controls-area {
     display: flex;
     flex-wrap: wrap;
-    /* Para que los botones se ajusten en pantallas pequeñas */
     justify-content: center;
-    gap: 10px;
-
-    /* Propiedades para la animación de despliegue */
+    gap: 12px;
     opacity: 0;
     max-height: 0;
     overflow: hidden;
     transition: opacity 0.4s ease-in-out 0.2s, max-height 0.5s ease-in-out;
-    /* El delay (0.2s) en opacity espera a que el giro de la tarjeta comience */
 }
 
-/* 2. Las mostramos cuando el modal tiene la clase 'is-revealed' */
 slice-flashcardmodal.is-revealed .card-details-area,
 slice-flashcardmodal.is-revealed .card-actions-area,
 slice-flashcardmodal.is-revealed .study-controls-area,
 slice-flashcardmodal.is-revealed .navigation-controls-area {
     opacity: 1;
-    max-height: 500px;
-    /* Un valor lo suficientemente grande para contener todo */
+    max-height: 600px;
 }
-
-/* --- FIN DEL CAMBIO CLAVE --- */
 
 .card-details-area {
     flex-direction: column;
     text-align: left;
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
 }
 
 .card-details-area h4 {
-    margin: 10px 0 5px 0;
-    color: #555;
+    margin: 0 0 8px 0;
+    color: #4a5568;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .card-details-area p {
-    background: #f4f4f4;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 0;
-    font-style: italic;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 0 0 16px 0;
+    font-style: normal;
     min-height: 20px;
     width: 100%;
     box-sizing: border-box;
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
+}
+
+.card-details-area p:last-child {
+    margin-bottom: 0;
+}
+
+.card-actions-area {
+    padding: 16px 0;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.action-button {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.95rem;
+}
+
+.action-button:hover {
+    background: #4a5d6f;
+    color: white;
+    border-color: #4a5d6f;
+    transform: translateY(-2px);
+}
+
+.action-button.edit-button:hover {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #2d3748;
+}
+
+.action-button.delete-audio-button:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.study-controls-area {
+    gap: 10px;
+}
+
+.study-button {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.study-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.study-button.easy {
+    background: #5cb85c;
+    color: white;
+}
+
+.study-button.easy:hover {
+    background: #4cae4c;
+}
+
+.study-button.medium {
+    background: #ffc107;
+    color: #2d3748;
+}
+
+.study-button.medium:hover {
+    background: #f0b000;
+}
+
+.study-button.hard {
+    background: #dc3545;
+    color: white;
+}
+
+.study-button.hard:hover {
+    background: #c82333;
+}
+
+.study-button.again {
+    background: #6c757d;
+    color: white;
+}
+
+.study-button.again:hover {
+    background: #5a6268;
+}
+
+.navigation-controls-area {
+    justify-content: space-between;
+}
+
+.nav-button {
+    background: #4a5d6f;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(74, 93, 111, 0.3);
+}
+
+.nav-button:hover {
+    background: #5a6d7f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(74, 93, 111, 0.4);
+}
+
+.nav-button:active {
+    transform: translateY(0);
+}
+
+#audio-player-container {
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+        gap: 16px;
+    }
+
+    slice-flashcard {
+        width: 100%;
+        max-width: 320px;
+        height: 180px;
+    }
+
+    .flashcard-front,
+    .flashcard-back {
+        font-size: 1.1rem;
+        padding: 15px;
+    }
+
+    .study-controls-area {
+        flex-direction: column;
+    }
+
+    .study-button {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .navigation-controls-area {
+        flex-direction: column;
+    }
+
+    .nav-button {
+        width: 100%;
+    }
 }
