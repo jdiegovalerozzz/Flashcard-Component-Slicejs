@@ -13,35 +13,22 @@ export default class DeckViewPage extends HTMLElement {
 
     async init() {
         await this.storageService.init();
-        // Guardamos la referencia al contenedor de tarjetas UNA VEZ.
         this.cardsGrid = this.querySelector('#cards-grid');
         await this.renderContent();
     }
 
     async update() {
         console.log('[DeckViewPage] Update llamado. Limpiando componentes hijos...');
-
-        // --- PASO 1: DESTRUIR (Según la documentación) ---
-        // Destruimos todos los componentes Slice (Flashcards) dentro del contenedor.
         slice.controller.destroyByContainer(this.cardsGrid);
-        // También destruimos el modal si existe, para recrearlo.
         const oldModal = this.querySelector('slice-flashcard-modal');
         if (oldModal) {
             slice.controller.destroyComponent(oldModal);
         }
-
-        // --- PASO 2: LIMPIAR (Ya lo hacías bien) ---
         this.cardsGrid.innerHTML = '';
 
-        // --- PASO 3: RE-RENDERIZAR ---
         const pathParts = window.location.pathname.split('/');
         const newId = pathParts[pathParts.length - 1];
-
-        if (this.props.params) {
-            this.props.params.id = newId;
-        } else {
-            this.props.params = { id: newId };
-        }
+        this.props.params = { id: newId };
         
         await this.renderContent();
     }
@@ -78,7 +65,27 @@ export default class DeckViewPage extends HTMLElement {
             this.appendChild(flashcardModal);
 
             for (const card of cards) {
-                const cardWrapper = await CardRenderer.createCardWrapper(card, flashcardModal);
+                // --- INICIO DEL CAMBIO ---
+                const cardWrapper = await CardRenderer.createCardWrapper({
+                    card: card,
+                    flashcardModal: flashcardModal,
+                    // Aquí definimos la función que se ejecutará al hacer clic en el botón de borrar.
+                    onDelete: async (cardId, wrapperElement) => {
+                        if (confirm('¿Estás seguro de que quieres eliminar esta tarjeta?')) {
+                            try {
+                                // 1. Llama al servicio para borrar de la base de datos.
+                                await this.storageService.deleteCard(cardId);
+                                // 2. Elimina el elemento de la vista para una respuesta instantánea.
+                                wrapperElement.remove();
+                                console.log(`[DeckViewPage] Tarjeta ${cardId} eliminada.`);
+                            } catch (error) {
+                                console.error(`Error al eliminar la tarjeta ${cardId}:`, error);
+                                alert('No se pudo eliminar la tarjeta.');
+                            }
+                        }
+                    }
+                });
+                // --- FIN DEL CAMBIO ---
                 this.cardsGrid.appendChild(cardWrapper);
             }
         }

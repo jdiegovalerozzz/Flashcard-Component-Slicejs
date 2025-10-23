@@ -3,12 +3,13 @@ import '../../Visual/Flashcard/Flashcard.js';
 export default class CardRenderer {
     /**
      * Crea un contenedor para una flashcard con sus botones de acción.
-     * Es un método estático porque no necesita estado; solo toma datos y devuelve HTML.
-     * @param {object} card - El objeto de datos de la tarjeta.
-     * @param {HTMLElement} flashcardModal - La instancia del modal para abrir al hacer clic.
+     * @param {object} options - Opciones de renderizado.
+     * @param {object} options.card - El objeto de datos de la tarjeta.
+     * @param {HTMLElement} options.flashcardModal - La instancia del modal.
+     * @param {function} [options.onDelete] - Callback que se ejecuta al hacer clic en eliminar. Recibe (cardId, wrapperElement).
      * @returns {Promise<HTMLElement>} - El elemento wrapper de la tarjeta.
      */
-    static async createCardWrapper(card, flashcardModal) {
+    static async createCardWrapper({ card, flashcardModal, onDelete }) {
         const wrapper = document.createElement('div');
         wrapper.className = 'flashcard-wrapper';
 
@@ -31,7 +32,17 @@ export default class CardRenderer {
             <button title="Edit">✏️</button>
             <button title="Delete">🗑️</button>
         `;
-        // TODO: Añadir event listeners para los botones de editar y eliminar tarjeta
+        
+        const deleteButton = actions.querySelector('button[title="Delete"]');
+        
+        if (onDelete && typeof onDelete === 'function') {
+            deleteButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evita que el clic se propague a la tarjeta y abra el modal.
+                onDelete(card.id, wrapper);
+            });
+        } else {
+            deleteButton.style.display = 'none';
+        }
 
         wrapper.append(cardComponent, actions);
         return wrapper;

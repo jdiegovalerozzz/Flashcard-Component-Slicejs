@@ -1,7 +1,6 @@
 import StorageService from '../../Service/StorageService/StorageService.js';
 import '../../Visual/Flashcard/Flashcard.js';
 import '../../Visual/FlashcardModal/FlashcardModal.js';
-// 1. Importa el nuevo servicio
 import CardRenderer from '../../Service/CardRenderer/CardRenderer.js';
 
 export default class HomePage extends HTMLElement {
@@ -51,8 +50,13 @@ export default class HomePage extends HTMLElement {
             allCardsGrid.innerHTML = '<p>No flashcards found yet.</p>';
         } else {
             for (const card of allCards) {
-                // 2. Usa el método estático del servicio
-                const cardWrapper = await CardRenderer.createCardWrapper(card, flashcardModal);
+                // --- INICIO DEL CAMBIO ---
+                // Se envuelven los argumentos en un solo objeto {}
+                const cardWrapper = await CardRenderer.createCardWrapper({
+                    card: card,
+                    flashcardModal: flashcardModal
+                });
+                // --- FIN DEL CAMBIO ---
                 allCardsGrid.appendChild(cardWrapper);
             }
         }
@@ -79,8 +83,6 @@ export default class HomePage extends HTMLElement {
         });
         return cardEl;
     }
-
-    // 3. Asegúrate de que el método createCardWrapper ya no exista aquí
 }
 
 customElements.define('home-page', HomePage);
