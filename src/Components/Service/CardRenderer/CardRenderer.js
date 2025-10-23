@@ -26,13 +26,19 @@ export default class CardRenderer {
             }
         });
 
-        const actions = document.createElement('div');
+         const actions = document.createElement('div');
         actions.className = 'flashcard-actions';
         actions.innerHTML = `
             <button title="Edit">✏️</button>
             <button title="Delete">🗑️</button>
         `;
         
+        const editButton = actions.querySelector('button[title="Edit"]');
+        editButton.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            slice.router.navigate(`/edit-flashcard/${card.id}`);
+        });
+
         const deleteButton = actions.querySelector('button[title="Delete"]');
         
         if (onDelete && typeof onDelete === 'function') {

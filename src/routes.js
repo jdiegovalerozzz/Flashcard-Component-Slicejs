@@ -19,6 +19,10 @@ const routes = [
       // CAMBIO CLAVE: Usamos la sintaxis ${id} en lugar de :id
       path: "/deck/${id}",
       component: "DeckViewPage",
+   },
+   {
+      path: '/edit-flashcard/${id}',
+      component: 'FlashcardCreator'
    }
 ];
 
