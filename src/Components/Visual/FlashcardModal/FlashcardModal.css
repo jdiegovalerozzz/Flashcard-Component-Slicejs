@@ -1,5 +1,6 @@
 slice-flashcardmodal {
     display: none;
+    /* Se mantiene para el control inicial */
     position: fixed;
     top: 0;
     left: 0;
@@ -20,6 +21,18 @@ slice-flashcardmodal.is-visible {
     display: flex;
     align-items: center;
     justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+    /* Animación de entrada */
+}
+
+@keyframes fadeIn {
+    from {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    to {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
 }
 
 .modal-content {
@@ -49,37 +62,56 @@ slice-flashcardmodal.is-visible {
     justify-content: center;
 }
 
-/* --- ESTA ES LA PARTE CLAVE --- */
+/* --- INICIO DEL CAMBIO CLAVE: Animación de los controles --- */
 
-/* 1. OCULTAMOS ESTAS SECCIONES POR DEFECTO */
+/* 1. Ocultamos estas secciones usando opacity y max-height para poder animarlas */
 .card-details-area,
 .card-actions-area,
 .study-controls-area,
 .navigation-controls-area {
-    display: none;
+    display: flex;
+    flex-wrap: wrap;
+    /* Para que los botones se ajusten en pantallas pequeñas */
+    justify-content: center;
+    gap: 10px;
+
+    /* Propiedades para la animación de despliegue */
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.4s ease-in-out 0.2s, max-height 0.5s ease-in-out;
+    /* El delay (0.2s) en opacity espera a que el giro de la tarjeta comience */
 }
 
-/* 2. LAS MOSTRAMOS CUANDO EL MODAL (slice-flashcardmodal) TIENE LA CLASE 'is-revealed' */
+/* 2. Las mostramos cuando el modal tiene la clase 'is-revealed' */
 slice-flashcardmodal.is-revealed .card-details-area,
 slice-flashcardmodal.is-revealed .card-actions-area,
 slice-flashcardmodal.is-revealed .study-controls-area,
 slice-flashcardmodal.is-revealed .navigation-controls-area {
-    display: flex; /* Usamos flex para que los botones se alineen correctamente */
-    justify-content: center;
-    gap: 10px;
+    opacity: 1;
+    max-height: 500px;
+    /* Un valor lo suficientemente grande para contener todo */
 }
 
-/* --- FIN DE LA PARTE CLAVE --- */
+/* --- FIN DEL CAMBIO CLAVE --- */
+
+.card-details-area {
+    flex-direction: column;
+    text-align: left;
+}
 
 .card-details-area h4 {
-    margin-bottom: 5px;
+    margin: 10px 0 5px 0;
+    color: #555;
 }
 
 .card-details-area p {
     background: #f4f4f4;
     padding: 10px;
     border-radius: 5px;
-    margin-top: 0;
+    margin: 0;
     font-style: italic;
     min-height: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
