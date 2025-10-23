@@ -28,6 +28,7 @@ export default class FlashcardModal extends HTMLElement {
     this.personalNotesEl = this.querySelector('.personal-notes');
     this.audioControlButton = this.querySelector('#audio-control-btn');
     this.audioPlayerContainer = this.querySelector('#audio-player-container');
+    this.deleteAudioButton = this.querySelector('#delete-audio-btn');
 
     // Events
     this.closeButton.addEventListener('click', () => this.hide());
@@ -35,6 +36,9 @@ export default class FlashcardModal extends HTMLElement {
       if (e.target === this.overlay) this.hide();
     });
     this.audioControlButton.addEventListener('click', () => this.handleAudioControlClick());
+
+    this.deleteAudioButton.addEventListener('click', () => this.handleDeleteAudioClick());
+
   }
 
   async show(cardData) {
@@ -78,6 +82,8 @@ export default class FlashcardModal extends HTMLElement {
       //  There's a saved audio
       this.audioControlButton.textContent = 'Play Audio';
       this.audioControlButton.disabled = false;
+      this.deleteAudioButton.style.display = 'inline-block';
+
 
       // Create url to reproductor
       if (this.currentAudioUrl) URL.revokeObjectURL(this.currentAudioUrl);
@@ -87,6 +93,7 @@ export default class FlashcardModal extends HTMLElement {
       // No audio
       this.audioControlButton.textContent = 'Record Audio';
       this.audioControlButton.disabled = false;
+      this.deleteAudioButton.style.display = 'none';
     }
   }
 
@@ -120,6 +127,32 @@ export default class FlashcardModal extends HTMLElement {
       if (success) {
         this.audioControlButton.textContent = 'Stop Recording';
         this.audioPlayerContainer.innerHTML = ''; // Cleaning
+      }
+    }
+  }
+
+  async handleDeleteAudioClick() {
+    if (!this.currentCard || !this.currentCard.audioBlob) return;
+
+    if (confirm('Are you sure you want to delete this audio recording? This action cannot be undone.')) {
+      // Update flashCard state
+      this.currentCard.audioBlob = null;
+
+      try {
+        await this.storageService.updateCard(this.currentCard);
+        console.log('Audio deleted successfully from the database.');
+
+        // Update UI
+        this.audioPlayerContainer.innerHTML = '';
+        if (this.currentAudioUrl) {
+          URL.revokeObjectURL(this.currentAudioUrl);
+          this.currentAudioUrl = null;
+        }
+        this.updateAudioState();
+
+      } catch (error) {
+        console.error('Failed to delete audio:', error);
+        alert('Could not delete the audio. Please try again.');
       }
     }
   }
