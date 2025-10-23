@@ -3,6 +3,7 @@ const components = {
   "FlashcardCreator": "AppComponents",
   "HomePage": "AppComponents",
   "Playground": "AppComponents",
+  "SettingsPage": "AppComponents",
   "Button": "Visual",
   "Card": "Visual",
   "Checkbox": "Visual",

@@ -1,7 +1,8 @@
 const routes = [
    // Rutas principales
-   { path: '/', component: 'HomePage' }, 
+   { path: '/', component: 'HomePage' },
    { path: '/404', component: 'NotFound' },
+   { path: '/settings', component: 'SettingsPage' },
    {
       path: '/Docum/${category}/${id}',
       component: 'LandingPage',
@@ -16,7 +17,7 @@ const routes = [
    },
    {
       // CAMBIO CLAVE: Usamos la sintaxis ${id} en lugar de :id
-      path: "/deck/${id}", 
+      path: "/deck/${id}",
       component: "DeckViewPage",
    }
 ];

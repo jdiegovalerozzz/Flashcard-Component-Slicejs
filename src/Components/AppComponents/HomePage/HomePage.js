@@ -18,12 +18,17 @@ export default class HomePage extends HTMLElement {
         const allCardsGrid = this.querySelector('#all-cards-grid');
         const modalContainer = this.querySelector('#modal-container');
         const addCardButton = this.querySelector('#add-card-button');
+        const settingsButton = this.querySelector('#settings-button');
 
         const flashcardModal = await slice.build('FlashcardModal', {});
         modalContainer.appendChild(flashcardModal);
 
         addCardButton.addEventListener('click', () => {
             slice.router.navigate('/create-flashcard');
+        });
+
+        settingsButton.addEventListener('click', () => {
+            slice.router.navigate('/settings');
         });
 
         this.renderDashboard(decksGrid, allCardsGrid, flashcardModal);

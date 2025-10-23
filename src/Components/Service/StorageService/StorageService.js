@@ -9,12 +9,12 @@ export default class StorageService {
     }
 
     this.props = props || {};
-    
+
     const DB_NAME = 'FlashcardAppDB';
-    const STORE_NAMES = ['decks', 'flashcards'];
+    const STORE_NAMES = ['decks', 'flashcards', 'settings'];
 
     this.dbManager = new IndexedDbManager(DB_NAME, STORE_NAMES);
-    
+
     instance = this;
   }
 
@@ -26,6 +26,18 @@ export default class StorageService {
       console.error('Failed to initialize StorageService:', error);
     }
   }
+
+  // --- Settings Methods ---
+
+  async saveSettings(settingsData) {
+    const settingsToSave = { id: 1, ...settingsData };
+    return this.dbManager.updateItem('settings', settingsToSave);
+  }
+
+  async getSettings() {
+    return this.dbManager.getItem('settings', 1);
+  }
+
 
   // --- Métodos para Mazos (Decks) ---
 
@@ -70,11 +82,6 @@ export default class StorageService {
 
   // --- Métodos Genéricos ---
 
-  /**
-   * Obtiene todos los items de un almacén de objetos específico.
-   * @param {string} storeName 
-   * @returns {Promise<Array>} 
-   */
   async getAllItems(storeName) {
     return this.dbManager.getAllItems(storeName);
   }
