@@ -11,7 +11,7 @@ export default class StorageService {
     this.props = props || {};
 
     const DB_NAME = "FlashcardAppDB";
-    const STORE_NAMES = ["decks", "flashcards", "settings"];
+    const STORE_NAMES = ["decks", "flashcards", "settings", "languages"];
 
     this.dbManager = new IndexedDbManager(DB_NAME, STORE_NAMES);
 
@@ -21,11 +21,40 @@ export default class StorageService {
   async init() {
     try {
       await this.dbManager.openDatabase();
+      await this.initializeDefaultLanguages();
       console.log("StorageService initialized and database is ready.");
     } catch (error) {
       console.error("Failed to initialize StorageService:", error);
     }
   }
+
+  // Languages methods
+  async initializeDefaultLanguages() {
+    const existingLanguages = await this.getAllLanguages();
+    if (existingLanguages.length === 0) {
+      console.log('No languages found. Initializing with defaults.');
+      const defaultLanguages = [
+        { code: 'en', name: 'English' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'it', name: 'Italiano' },
+        { code: 'pt', name: 'Português' },
+      ];
+      for (const lang of defaultLanguages) {
+        await this.addLanguage(lang);
+      }
+    }
+  }
+
+  async addLanguage(languageData) {
+    return this.dbManager.addItem('languages', languageData, languageData.code);
+  }
+
+  async getAllLanguages() {
+    return this.dbManager.getAllItems('languages');
+  }
+
 
   // --- Settings Methods ---
   async saveSettings(settingsData) {

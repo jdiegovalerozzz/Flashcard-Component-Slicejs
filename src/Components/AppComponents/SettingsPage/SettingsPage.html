@@ -1,32 +1,47 @@
-<div class="settingspage">
-  <div class="settings-container">
-    <header class="settings-header">
-      <div class="header-left">
-        <button id="back-button" class="secondary-button">&larr; Back to Dashboard</button>
-        <h1>Settings</h1>
-      </div>
-    </header>
+<div class="settings-container">
+  <header class="settings-header">
+    <div class="header-left">
+      <button id="back-button" class="secondary-button">&larr; Back to Dashboard</button>
+      <h1>Settings</h1>
+    </div>
+  </header>
 
-    <main class="settings-form">
-      <div class="form-section">
-        <h2>Language Configuration</h2>
-        <p>Select your native language and the language you want to learn.</p>
+  <main class="settings-form">
+    <!-- SECCIÓN PARA AÑADIR IDIOMAS -->
+    <div class="form-section">
+      <h2>Manage Languages</h2>
+      <p>Add custom languages to your list. Use a 2-letter code (e.g., 'ja' for Japanese).</p>
+      <div class="add-language-form">
+        <input type="text" id="new-lang-name-input" placeholder="Language Name (e.g., Japanese)">
+        <input type="text" id="new-lang-code-input" placeholder="Code (e.g., ja)" maxlength="5">
+        <button id="add-language-button" class="action-button">Add</button>
       </div>
+      <div class="language-list-container">
+        <h4>Available Languages:</h4>
+        <ul id="language-list">
+          <!-- La lista se poblará aquí -->
+        </ul>
+      </div>
+    </div>
 
-      <div class="form-group">
-        <label for="native-lang-select">Native Language</label>
-        <div id="native-lang-select-container">
-        </div>
-      </div>
+    <!-- SECCIÓN PARA SELECCIONAR IDIOMAS -->
+    <div class="form-section">
+      <h2>Language Configuration</h2>
+      <p>Select your native language and the language you want to learn.</p>
+    </div>
 
-      <div class="form-group">
-        <label for="target-lang-select">Target Language</label>
-        <div id="target-lang-select-container">
-        </div>
-      </div>
+    <div class="form-group">
+      <label for="native-lang-select">Native Language</label>
+      <div id="native-lang-select-container"></div>
+    </div>
 
-      <div class="form-actions">
-        <button id="save-settings-button" class="primary-button">Save Settings</button>
-      </div>
-    </main>
-  </div>
+    <div class="form-group">
+      <label for="target-lang-select">Target Language</label>
+      <div id="target-lang-select-container"></div>
+    </div>
+
+    <div class="form-actions">
+      <button id="save-settings-button" class="primary-button">Save Settings</button>
+    </div>
+  </main>
+</div>

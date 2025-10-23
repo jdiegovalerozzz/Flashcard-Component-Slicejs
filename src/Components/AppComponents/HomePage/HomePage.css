@@ -167,3 +167,13 @@ home-page {
 .secondary-button:hover {
     background-color: #5a6268;
 }
+
+.language-indicator {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
+    background-color: #e9ecef;
+    padding: 5px 12px;
+    border-radius: 15px;
+    margin: 0 auto;
+}

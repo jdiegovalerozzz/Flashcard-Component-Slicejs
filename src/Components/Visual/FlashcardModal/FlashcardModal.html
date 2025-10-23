@@ -1,9 +1,9 @@
 <div class="modal-overlay">
     <div class="modal-content">
         <button class="close-button">&times;</button>
-        
+
         <div class="card-display-area">
-            <!-- el componente flashcard se insertara aqui -->
+            <!-- slice-flashcard se insertará aquí -->
         </div>
 
         <div class="card-details-area">
@@ -14,7 +14,12 @@
         </div>
 
         <div class="card-actions-area">
-            <button class="action-button audio-button">Play Audio</button>
+            <button class="action-button audio-control-button" id="audio-control-btn"></button>
+            <button class="action-button delete-audio-button" id="delete-audio-btn" style="display: none;">
+                Delete Audio
+            </button>
+
+            <div id="audio-player-container"></div>
             <button class="action-button edit-button">Edit</button>
         </div>
 

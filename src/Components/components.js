@@ -27,6 +27,7 @@ const components = {
   "Switch": "Visual",
   "TreeItem": "Visual",
   "TreeView": "Visual",
+  "AudioRecorderService": "Service",
   "CardRenderer": "Service",
   "FetchManager": "Service",
   "IndexedDbManager": "Service",
