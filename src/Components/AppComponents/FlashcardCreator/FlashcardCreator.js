@@ -5,10 +5,7 @@ export default class FlashcardCreator extends HTMLElement {
     constructor(props) {
         super();
         slice.attachTemplate(this);
-        // --- INICIO DEL CAMBIO ---
-        // Asignamos las props directamente. Si no llegan, inicializamos un objeto vacío.
-        this.props = props || {}; 
-        // --- FIN DEL CAMBIO ---
+        this.props = props || {};
         this.storageService = new StorageService();
         this.editMode = false;
         this.cardToEdit = null;
@@ -17,7 +14,6 @@ export default class FlashcardCreator extends HTMLElement {
     async init() {
         await this.storageService.init();
 
-        // Detectar si estamos en modo edición por los parámetros de la ruta
         if (this.props.params && this.props.params.id) {
             this.editMode = true;
             this.cardToEdit = await this.storageService.getCard(Number(this.props.params.id));
@@ -27,59 +23,59 @@ export default class FlashcardCreator extends HTMLElement {
             }
         }
 
-        // Referencias a los elementos del HTML
         const title = this.querySelector('h1');
         const deckSection = this.querySelector('#deck-section');
         const formSection = this.querySelector('#card-form-section');
         const saveButton = this.querySelector('#save-card-button');
         const backButton = this.querySelector('#back-button');
 
-        backButton.onclick = () => window.history.back(); // Botón para volver atrás
+        backButton.onclick = () => window.history.back();
 
-        // Cambiar título y texto del botón según el modo
         title.textContent = this.editMode ? 'Edit Flashcard' : 'Add a New Flashcard';
         saveButton.textContent = this.editMode ? 'Update Card' : 'Save Card';
 
-        // Lógica para la sección del mazo
         if (this.editMode) {
             const deck = await this.storageService.getDeck(this.cardToEdit.deckId);
             deckSection.innerHTML = `<p><strong>Deck:</strong> ${deck.name}</p>`;
         } else {
-            // La lógica para crear/seleccionar mazo solo se muestra en modo creación
-            const existingDecks = await this.storageService.getAllDecks();
-            const deckOptions = existingDecks.map(deck => ({ value: deck.id, text: deck.name }));
+            // Decks filtering by objective language
+            const settings = await this.storageService.getSettings();
+            const targetLangCode = settings ? settings.targetLanguage : null;
+
+            const allDecks = await this.storageService.getAllDecks();
+            const filteredDecks = targetLangCode
+                ? allDecks.filter(deck => deck.languageCode === targetLangCode || !deck.languageCode) // Muestra mazos del idioma O los que no tienen idioma asignado
+                : allDecks;
+
+            const deckOptions = filteredDecks.map(deck => ({ value: deck.id, text: deck.name }));
             deckOptions.push({ value: 'CREATE_NEW', text: 'Create a new deck...' });
 
             const newDeckFields = this.querySelector('#new-deck-fields');
             this.newDeckNameInput = await slice.build('Input', { placeholder: 'New Deck Name' });
             this.newDeckDifficultySelect = await slice.build('Select', {
                 label: 'Select Difficulty',
-                options: [ { value: 'Basic', text: 'Basic' }, { value: 'Intermediate', text: 'Intermediate' }, { value: 'Advanced', text: 'Advanced' } ]
+                options: [{ value: 'Basic', text: 'Basic' }, { value: 'Intermediate', text: 'Intermediate' }, { value: 'Advanced', text: 'Advanced' }]
             });
             newDeckFields.append(this.newDeckNameInput, this.newDeckDifficultySelect);
 
             this.deckSelector = await slice.build('Select', {
-                label: 'Select a Deck',
+                label: `Select a Deck (for ${targetLangCode || 'any language'})`,
                 options: deckOptions,
                 onOptionSelect: (selectedOption) => {
-                    if (selectedOption && selectedOption.value === 'CREATE_NEW') newDeckFields.style.display = 'block';
-                    else newDeckFields.style.display = 'none';
+                    newDeckFields.style.display = (selectedOption?.value === 'CREATE_NEW') ? 'block' : 'none';
                 }
             });
             this.querySelector('#deck-selector-container').appendChild(this.deckSelector);
         }
 
-        // Pre-rellenar el formulario en modo edición
         this.frontInput = await slice.build('Input', { placeholder: 'Front text (required)', value: this.cardToEdit?.front || '' });
         this.backInput = await slice.build('Input', { placeholder: 'Back text (required)', value: this.cardToEdit?.back || '' });
         this.exampleInput = await slice.build('Input', { placeholder: 'Usage example (optional)', value: this.cardToEdit?.example || '' });
         this.notesInput = await slice.build('Input', { placeholder: 'Personal notes (optional)', value: this.cardToEdit?.notes || '' });
-        
-        // Limpiar el contenedor del formulario y añadir los nuevos inputs
-        formSection.innerHTML = '';
+
+        formSection.innerHTML = '<h2>Card Content</h2>';
         formSection.append(this.frontInput, this.backInput, this.exampleInput, this.notesInput);
 
-        // Lógica de guardado
         saveButton.addEventListener('click', () => this.handleSave());
     }
 
@@ -102,12 +98,29 @@ export default class FlashcardCreator extends HTMLElement {
 
         if (selectedDeck.value === 'CREATE_NEW') {
             const newDeckName = this.newDeckNameInput.value;
-            const newDeckDifficulty = this.newDeckDifficultySelect.value ? this.newDeckDifficultySelect.value.value : null;
+            const newDeckDifficulty = this.newDeckDifficultySelect.value?.value;
             if (!newDeckName || !newDeckDifficulty) {
                 alert('Please provide a name and difficulty for the new deck.');
                 return;
             }
-            const newDeck = await this.storageService.saveDeck({ name: newDeckName, difficulty: newDeckDifficulty, createdAt: new Date().toISOString() });
+
+            //Target language logic
+            const settings = await this.storageService.getSettings();
+            const targetLangCode = settings ? settings.targetLanguage : null;
+
+            if (!targetLangCode) {
+                alert('Please set a target language in Settings before creating a new deck.');
+                return;
+            }
+
+            const newDeckData = {
+                name: newDeckName,
+                difficulty: newDeckDifficulty,
+                createdAt: new Date().toISOString(),
+                languageCode: targetLangCode
+            };
+
+            const newDeck = await this.storageService.saveDeck(newDeckData);
             deckId = newDeck.id;
         } else {
             deckId = selectedDeck.value;

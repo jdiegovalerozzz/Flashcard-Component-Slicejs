@@ -17,6 +17,7 @@ export default class HomePage extends HTMLElement {
         this.decksGrid = this.querySelector('#decks-grid');
         this.allCardsGrid = this.querySelector('#all-cards-grid');
         this.modalContainer = this.querySelector('#modal-container');
+        this.languageIndicator = this.querySelector('#language-indicator');
         const addCardButton = this.querySelector('#add-card-button');
         const settingsButton = this.querySelector('#settings-button');
 
@@ -43,13 +44,33 @@ export default class HomePage extends HTMLElement {
         this.decksGrid.innerHTML = '';
         this.allCardsGrid.innerHTML = '';
 
-        const decks = await this.storageService.getAllDecks();
+        const settings = await this.storageService.getSettings();
+        const allLangs = await this.storageService.getAllLanguages();
+        const allDecks = await this.storageService.getAllDecks();
         const allCards = await this.storageService.getAllItems('flashcards');
+        const targetLangCode = settings ? settings.targetLanguage : null;
 
-        if (decks.length === 0) {
-            this.decksGrid.innerHTML = '<p>No decks found. Add a new card to create one!</p>';
+        if (targetLangCode) {
+            const targetLang = allLangs.find(lang => lang.code === targetLangCode);
+            this.languageIndicator.textContent = `🎯 Learning: ${targetLang ? targetLang.name : targetLangCode}`;
+            this.languageIndicator.style.display = 'block';
         } else {
-            for (const deck of decks) {
+            this.languageIndicator.textContent = 'Set your target language in Settings!';
+            this.languageIndicator.style.display = 'block';
+        }
+
+        const filteredDecks = targetLangCode
+            ? allDecks.filter(deck => deck.languageCode === targetLangCode)
+            : allDecks; // If theres no language selected, show all decks
+
+        if (filteredDecks.length === 0) {
+            if (targetLangCode) {
+                this.decksGrid.innerHTML = `<p>No decks found for the selected language. Add a new card to create one!</p>`;
+            } else {
+                this.decksGrid.innerHTML = '<p>No decks found. Add a new card to create one!</p>';
+            }
+        } else {
+            for (const deck of filteredDecks) {
                 const cardsInDeck = allCards.filter(c => c.deckId === deck.id);
                 const deckCard = this.createDeckCard(deck, cardsInDeck.length);
                 this.decksGrid.appendChild(deckCard);
