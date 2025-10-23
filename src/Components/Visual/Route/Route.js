@@ -1,4 +1,5 @@
 export default class Route extends HTMLElement {
+// ... (constructor, init, getters/setters se mantienen igual)
    constructor(props) {
       super();
       this.props = props;
@@ -13,8 +14,6 @@ export default class Route extends HTMLElement {
       if (!this.props.component) {
          this.props.component = slice.router.pathToRouteMap.get(this.props.path).component || ' ';
       }
-
-      //this.props.innerHTML = this.innerHTML;
    }
 
    get path() {
@@ -33,10 +32,28 @@ export default class Route extends HTMLElement {
       this.props.component = value;
    }
 
+
    async render() {
+      // --- INICIO DE LA MODIFICACIÓN ---
+
+      // 1. Obtenemos la ruta actual y sus parámetros del router principal
+      const currentRoute = slice.router.match(window.location.pathname);
+      const params = currentRoute ? currentRoute.params : {};
+
+      // 2. Preparamos las props que se pasarán al componente
+      const componentProps = {
+         sliceId: this.props.component,
+         params: params // Inyectamos los parámetros de la URL
+      };
+
+      // --- FIN DE LA MODIFICACIÓN ---
+
       if (Route.componentCache[this.props.component]) {
          const cachedComponent = Route.componentCache[this.props.component];
          this.innerHTML = '';
+
+         // Actualizamos las props del componente cacheado
+         slice.controller.setComponentProps(cachedComponent, componentProps);
 
          if (cachedComponent.update) {
             await cachedComponent.update();
@@ -53,9 +70,8 @@ export default class Route extends HTMLElement {
             return;
          }
 
-         const component = await slice.build(this.props.component, {
-            sliceId: this.props.component,
-         });
+         // 3. Pasamos las props completas al construir el componente
+         const component = await slice.build(this.props.component, componentProps);
 
          this.innerHTML = '';
          this.appendChild(component);
@@ -65,6 +81,7 @@ export default class Route extends HTMLElement {
    }
 
    async renderIfCurrentRoute() {
+// ... (el resto del archivo se mantiene igual)
       if (this.props.path === window.location.pathname) {
          if (this.rendered) {
             if (Route.componentCache[this.props.component]) {

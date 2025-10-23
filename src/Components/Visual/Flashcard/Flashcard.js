@@ -1,8 +1,9 @@
 export default class Flashcard extends HTMLElement {
 
   static props = {
-    "front-text": { type: 'string', default: 'Anverso' },
-    "back-text": { type: 'string', default: 'Reverso' }
+    "front-text": { type: 'string', default: 'Front' },
+    "back-text": { type: 'string', default: 'Back' },
+    "flippable": { type: 'boolean', default: true }
   }
 
   constructor(props) {
@@ -15,10 +16,13 @@ export default class Flashcard extends HTMLElement {
     if (!this.isInitialized) {
       this.$front = this.querySelector('.flashcard-front');
       this.$back = this.querySelector('.flashcard-back');
-      this.addEventListener('click', this.flipCard);
-      this.isInitialized = true;
       
- 
+      // 2. AÑADIMOS EL EVENTO SOLO SI ES 'flippable'
+      if (this.flippable) {
+        this.addEventListener('click', this.flipCard);
+      }
+
+      this.isInitialized = true;
       this.updateInitialText();
     }
   }
@@ -46,6 +50,11 @@ export default class Flashcard extends HTMLElement {
     if (this.$back) { 
         this.$back.textContent = value;
     }
+  }
+
+  get flippable() { return this._flippable; }
+  set flippable(value) {
+    this._flippable = value;
   }
 
   disconnectedCallback() {

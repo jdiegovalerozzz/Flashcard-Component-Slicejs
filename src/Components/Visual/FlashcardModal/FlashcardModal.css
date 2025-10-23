@@ -1,1 +1,85 @@
-/* Styles for FlashcardModal component */
+slice-flashcardmodal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+slice-flashcardmodal.is-visible {
+    display: block;
+}
+
+.modal-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    display: grid;
+    gap: 20px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.card-display-area {
+    display: flex;
+    justify-content: center;
+}
+
+/* --- ESTA ES LA PARTE CLAVE --- */
+
+/* 1. OCULTAMOS ESTAS SECCIONES POR DEFECTO */
+.card-details-area,
+.card-actions-area,
+.study-controls-area,
+.navigation-controls-area {
+    display: none;
+}
+
+/* 2. LAS MOSTRAMOS CUANDO EL MODAL (slice-flashcardmodal) TIENE LA CLASE 'is-revealed' */
+slice-flashcardmodal.is-revealed .card-details-area,
+slice-flashcardmodal.is-revealed .card-actions-area,
+slice-flashcardmodal.is-revealed .study-controls-area,
+slice-flashcardmodal.is-revealed .navigation-controls-area {
+    display: flex; /* Usamos flex para que los botones se alineen correctamente */
+    justify-content: center;
+    gap: 10px;
+}
+
+/* --- FIN DE LA PARTE CLAVE --- */
+
+.card-details-area h4 {
+    margin-bottom: 5px;
+}
+
+.card-details-area p {
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 0;
+    font-style: italic;
+    min-height: 20px;
+}

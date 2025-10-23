@@ -27,6 +27,8 @@ export default class StorageService {
     }
   }
 
+  // --- Métodos para Mazos (Decks) ---
+
   async saveDeck(deckData) {
     return this.dbManager.addItem('decks', deckData);
   }
@@ -42,6 +44,8 @@ export default class StorageService {
   async deleteDeck(deckId) {
     return this.dbManager.deleteItem('decks', deckId);
   }
+
+  // --- Métodos para Tarjetas (Flashcards) ---
 
   async saveFlashcard(cardData) {
     return this.dbManager.addItem('flashcards', cardData);
@@ -62,5 +66,16 @@ export default class StorageService {
 
   async deleteCard(cardId) {
     return this.dbManager.deleteItem('flashcards', cardId);
+  }
+
+  // --- Métodos Genéricos ---
+
+  /**
+   * Obtiene todos los items de un almacén de objetos específico.
+   * @param {string} storeName 
+   * @returns {Promise<Array>} 
+   */
+  async getAllItems(storeName) {
+    return this.dbManager.getAllItems(storeName);
   }
 }

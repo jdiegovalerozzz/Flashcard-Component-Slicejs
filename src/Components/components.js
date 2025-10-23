@@ -1,4 +1,5 @@
 const components = {
+  "DeckViewPage": "AppComponents",
   "FlashcardCreator": "AppComponents",
   "HomePage": "AppComponents",
   "Playground": "AppComponents",
@@ -23,6 +24,7 @@ const components = {
   "Switch": "Visual",
   "TreeItem": "Visual",
   "TreeView": "Visual",
+  "CardRenderer": "Service",
   "FetchManager": "Service",
   "IndexedDbManager": "Service",
   "Link": "Service",

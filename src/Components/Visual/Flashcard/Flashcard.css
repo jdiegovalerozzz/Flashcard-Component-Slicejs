@@ -5,34 +5,46 @@ slice-flashcard {
     height: 200px;
     cursor: pointer;
     font-family: sans-serif;
+    background-color: transparent;
 }
 
+/* 2. El nuevo contenedor se encarga de la forma y la sombra */
+.flashcard-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    /* CAMBIO CLAVE: Añadimos padding para dar espacio a la animación */
+    padding: 5px; 
+    box-sizing: border-box; /* Importante para que el padding no aumente el tamaño total */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Puedes volver a añadir la sombra aquí */
+}
+
+/* 3. El contenedor interior se encarga SOLO de la animación 3D */
 .flashcard-inner {
     position: relative;
     width: 100%;
     height: 100%;
     text-align: center;
     transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-style: preserve-3d;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transform-style: preserve-3d; /* Esto ahora funcionará correctamente */
+    /* Quitamos las propiedades que movimos al contenedor de arriba */
 }
 
 slice-flashcard.is-flipped .flashcard-inner {
-    transform: rotateY(180deg) rotateZ(5deg) scale(1.05);
+    transform: rotateY(180deg);
 }
 
 .flashcard-front, .flashcard-back {
     position: absolute;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden; /* Esto ahora funcionará correctamente */
     backface-visibility: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    border: 1px solid #ccc;
-    border-radius: 10px;
     padding: 10px;
     box-sizing: border-box;
 }

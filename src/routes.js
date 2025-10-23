@@ -1,6 +1,6 @@
 const routes = [
    // Rutas principales
-   { path: '/', component: 'HomePage' },
+   { path: '/', component: 'HomePage' }, 
    { path: '/404', component: 'NotFound' },
    {
       path: '/Docum/${category}/${id}',
@@ -13,9 +13,12 @@ const routes = [
    {
       path: "/create-flashcard",
       component: "FlashcardCreator",
+   },
+   {
+      // CAMBIO CLAVE: Usamos la sintaxis ${id} en lugar de :id
+      path: "/deck/${id}", 
+      component: "DeckViewPage",
    }
-
-
 ];
 
 export default routes;

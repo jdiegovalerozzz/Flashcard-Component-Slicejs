@@ -1,5 +1,8 @@
 import StorageService from '../../Service/StorageService/StorageService.js';
-import '../../Visual/Flashcard/Flashcard.js'; 
+import '../../Visual/Flashcard/Flashcard.js';
+import '../../Visual/FlashcardModal/FlashcardModal.js';
+// 1. Importa el nuevo servicio
+import CardRenderer from '../../Service/CardRenderer/CardRenderer.js';
 
 export default class HomePage extends HTMLElement {
     constructor(props) {
@@ -12,74 +15,72 @@ export default class HomePage extends HTMLElement {
     async init() {
         await this.storageService.init();
 
-        const container = document.createElement('div');
-        container.style.padding = '20px';
-        container.style.fontFamily = 'sans-serif';
+        const decksGrid = this.querySelector('#decks-grid');
+        const allCardsGrid = this.querySelector('#all-cards-grid');
+        const modalContainer = this.querySelector('#modal-container');
+        const addCardButton = this.querySelector('#add-card-button');
 
-        // --- Título y Botón de Crear ---
-        const header = document.createElement('div');
-        header.style.display = 'flex';
-        header.style.justifyContent = 'space-between';
-        header.style.alignItems = 'center';
+        const flashcardModal = await slice.build('FlashcardModal', {});
+        modalContainer.appendChild(flashcardModal);
 
-        const title = document.createElement('h1');
-        title.textContent = 'My Decks';
-        
-        const createButton = await slice.build('Button', { value: 'Create New Deck' });
-        createButton.addEventListener('click', () => {
+        addCardButton.addEventListener('click', () => {
             slice.router.navigate('/create-flashcard');
         });
 
-        header.append(title, createButton);
-        container.appendChild(header);
+        this.renderDashboard(decksGrid, allCardsGrid, flashcardModal);
+    }
 
-        // --- Cargar y Mostrar los Mazos ---
+    async renderDashboard(decksGrid, allCardsGrid, flashcardModal) {
+        decksGrid.innerHTML = '';
+        allCardsGrid.innerHTML = '';
+
         const decks = await this.storageService.getAllDecks();
+        const allCards = await this.storageService.getAllItems('flashcards');
 
         if (decks.length === 0) {
-            const noDecksMessage = document.createElement('p');
-            noDecksMessage.textContent = 'You have no decks yet. Click "Create New Deck" to get started!';
-            noDecksMessage.style.marginTop = '20px';
-            container.appendChild(noDecksMessage);
+            decksGrid.innerHTML = '<p>No decks found. Add a new card to create one!</p>';
         } else {
             for (const deck of decks) {
-                // Contenedor para cada mazo
-                const deckContainer = document.createElement('div');
-                deckContainer.style.marginTop = '30px';
-                deckContainer.style.border = '1px solid #eee';
-                deckContainer.style.padding = '15px';
-                deckContainer.style.borderRadius = '8px';
-
-                const deckTitle = document.createElement('h2');
-                deckTitle.textContent = `${deck.name} (${deck.difficulty})`;
-                deckContainer.appendChild(deckTitle);
-
-                // Grid para las tarjetas de este mazo
-                const cardGrid = document.createElement('div');
-                cardGrid.style.display = 'flex';
-                cardGrid.style.flexWrap = 'wrap';
-                cardGrid.style.gap = '10px';
-                cardGrid.style.marginTop = '15px';
-
-                const cards = await this.storageService.getFlashcardsByDeck(deck.id);
-                
-                for (const card of cards) {
-                    const cardComponent = await slice.build('Flashcard', {
-                        'front-text': card.front,
-                        'back-text': card.back
-                    });
-                    cardComponent.style.transform = 'scale(0.5)';
-                    cardComponent.style.transformOrigin = 'top left';
-                    cardGrid.appendChild(cardComponent);
-                }
-
-                deckContainer.appendChild(cardGrid);
-                container.appendChild(deckContainer);
+                const cardsInDeck = allCards.filter(c => c.deckId === deck.id);
+                const deckCard = this.createDeckCard(deck, cardsInDeck.length);
+                decksGrid.appendChild(deckCard);
             }
         }
 
-        this.appendChild(container);
+        if (allCards.length === 0) {
+            allCardsGrid.innerHTML = '<p>No flashcards found yet.</p>';
+        } else {
+            for (const card of allCards) {
+                // 2. Usa el método estático del servicio
+                const cardWrapper = await CardRenderer.createCardWrapper(card, flashcardModal);
+                allCardsGrid.appendChild(cardWrapper);
+            }
+        }
     }
+
+    createDeckCard(deck, cardCount) {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'deck-card';
+        cardEl.innerHTML = `
+            <div class="deck-card-header">
+                <h3>${deck.name}</h3>
+                <span>${deck.difficulty}</span>
+            </div>
+            <p class="deck-card-info">${cardCount} card${cardCount !== 1 ? 's' : ''}</p>
+            <div class="deck-card-actions">
+                <button class="action-button edit">Edit</button>
+                <button class="action-button delete">Delete</button>
+            </div>
+        `;
+        cardEl.addEventListener('click', (e) => {
+            if (!e.target.closest('.action-button')) {
+                slice.router.navigate(`/deck/${deck.id}`);
+            }
+        });
+        return cardEl;
+    }
+
+    // 3. Asegúrate de que el método createCardWrapper ya no exista aquí
 }
 
 customElements.define('home-page', HomePage);
