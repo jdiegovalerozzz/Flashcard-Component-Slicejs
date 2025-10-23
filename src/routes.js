@@ -26,6 +26,9 @@ const routes = [
    },
    { 
       path: '/edit-deck/${id}', component: 'DeckEditor'
+   },
+   { 
+      path: '/practice/${deckId}', component: 'PracticeSession'
    }
 ];
 

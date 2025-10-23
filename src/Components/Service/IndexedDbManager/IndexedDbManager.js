@@ -1,29 +1,26 @@
 export default class IndexedDbManager {
-   // 1. El constructor ahora acepta un array de nombres de almacenes
    constructor(databaseName, storeNames) {
       this.databaseName = databaseName;
-      // Nos aseguramos de que storeNames sea siempre un array
       this.storeNames = Array.isArray(storeNames) ? storeNames : [storeNames];
       this.db = null;
    }
    
-   // 2. openDatabase ahora crea todos los almacenes de una vez
    async openDatabase() {
-      // Si ya tenemos una conexión abierta, la reutilizamos
       if (this.db) {
          return Promise.resolve(this.db);
       }
 
       return new Promise((resolve, reject) => {
-         // IMPORTANTE: Se debe especificar una versión para que onupgradeneeded se dispare
-         const request = indexedDB.open(this.databaseName, 1);
+         // --- CAMBIO 1: Incrementar la versión de la base de datos a 2 ---
+         // Esto disparará el evento 'onupgradeneeded' para los usuarios existentes.
+         const request = indexedDB.open(this.databaseName, 2);
 
-         // Este evento solo se ejecuta si la versión cambia o la DB no existe
          request.onupgradeneeded = (event) => {
             const db = event.target.result;
-            // Recorremos el array de nombres de almacenes
+            const transaction = event.target.transaction;
+
+            // Lógica de creación de almacenes (sin cambios)
             this.storeNames.forEach(storeName => {
-               // Y creamos cada almacén si no existe
                if (!db.objectStoreNames.contains(storeName)) {
                   db.createObjectStore(storeName, {
                      keyPath: 'id',
@@ -31,6 +28,20 @@ export default class IndexedDbManager {
                   });
                }
             });
+
+            // --- CAMBIO 2: Lógica de migración de esquema para SRS ---
+            // Si la versión antigua es menor que 2, estamos actualizando.
+            if (event.oldVersion < 2) {
+               console.log("Upgrading database to v2 for Spaced Repetition System...");
+               if (db.objectStoreNames.contains('flashcards')) {
+                  // Obtenemos el almacén de tarjetas dentro de la transacción de actualización.
+                  const flashcardStore = transaction.objectStore('flashcards');
+                  // Creamos un índice en 'nextReviewDate'. Esto es VITAL para buscar
+                  // eficientemente las tarjetas pendientes de revisión.
+                  flashcardStore.createIndex('nextReviewDateIdx', 'nextReviewDate', { unique: false });
+                  console.log("Index 'nextReviewDateIdx' created on 'flashcards' store.");
+               }
+            }
          };
 
          request.onsuccess = (event) => {
@@ -153,6 +164,31 @@ export default class IndexedDbManager {
 
          request.onerror = (event) => {
             reject(new Error(`Error clearing items in ${storeName}: ${event.target.error}`));
+         };
+      });
+   }
+
+   /**
+    * Obtiene todos los elementos de un almacén que coinciden con una consulta en un índice específico.
+    * @param {string} storeName - El nombre del almacén.
+    * @param {string} indexName - El nombre del índice a consultar (ej: 'nextReviewDateIdx').
+    * @param {IDBKeyRange} query - El rango de la consulta (ej: todas las fechas hasta hoy).
+    * @returns {Promise<Array>} - Una promesa que se resuelve con un array de elementos.
+    */
+   async getItemsByIndex(storeName, indexName, query) {
+      await this.openDatabase();
+      return new Promise((resolve, reject) => {
+         const transaction = this.db.transaction(storeName, 'readonly');
+         const store = transaction.objectStore(storeName);
+         const index = store.index(indexName);
+         const request = index.getAll(query);
+
+         request.onsuccess = () => {
+            resolve(request.result);
+         };
+
+         request.onerror = (event) => {
+            reject(new Error(`Error fetching items by index: ${event.target.error}`));
          };
       });
    }

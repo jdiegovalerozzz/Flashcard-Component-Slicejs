@@ -4,6 +4,7 @@ const components = {
   "FlashcardCreator": "AppComponents",
   "HomePage": "AppComponents",
   "Playground": "AppComponents",
+  "PracticeSession": "AppComponents",
   "SettingsPage": "AppComponents",
   "Button": "Visual",
   "Card": "Visual",
@@ -31,6 +32,7 @@ const components = {
   "IndexedDbManager": "Service",
   "Link": "Service",
   "LocalStorageManager": "Service",
+  "SRSService": "Service",
   "StorageService": "Service",
   "Translator": "Service"
 };

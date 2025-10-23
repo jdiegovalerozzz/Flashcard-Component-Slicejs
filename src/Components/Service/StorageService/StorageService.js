@@ -28,7 +28,6 @@ export default class StorageService {
   }
 
   // --- Settings Methods ---
-
   async saveSettings(settingsData) {
     const settingsToSave = { id: 1, ...settingsData };
     return this.dbManager.updateItem("settings", settingsToSave);
@@ -39,7 +38,6 @@ export default class StorageService {
   }
 
   // --- Métodos para Mazos (Decks) ---
-
   async saveDeck(deckData) {
     return this.dbManager.addItem("decks", deckData);
   }
@@ -57,25 +55,11 @@ export default class StorageService {
   }
 
   async deleteDeck(deckId) {
-    console.log(
-      `[StorageService] Iniciando eliminación del mazo ${deckId} y sus tarjetas.`
-    );
-
-    // 1. Encontrar todas las tarjetas que pertenecen a este mazo.
+    console.log(`[StorageService] Iniciando eliminación del mazo ${deckId} y sus tarjetas.`);
     const cardsToDelete = await this.getFlashcardsByDeck(deckId);
-
-    // 2. Crear una lista de promesas para eliminar cada tarjeta.
-    const deleteCardPromises = cardsToDelete.map((card) =>
-      this.deleteCard(card.id)
-    );
-
-    // 3. Ejecutar todas las promesas de eliminación de tarjetas en paralelo.
+    const deleteCardPromises = cardsToDelete.map((card) => this.deleteCard(card.id));
     await Promise.all(deleteCardPromises);
-    console.log(
-      `[StorageService] ${cardsToDelete.length} tarjetas asociadas eliminadas.`
-    );
-
-    // 4. Finalmente, eliminar el mazo en sí.
+    console.log(`[StorageService] ${cardsToDelete.length} tarjetas asociadas eliminadas.`);
     await this.dbManager.deleteItem("decks", deckId);
     console.log(`[StorageService] Mazo ${deckId} eliminado correctamente.`);
   }
@@ -83,7 +67,34 @@ export default class StorageService {
   // --- Métodos para Tarjetas (Flashcards) ---
 
   async saveFlashcard(cardData) {
-    return this.dbManager.addItem("flashcards", cardData);
+    const newCard = {
+      ...cardData,
+      interval: 0,       // Intervalo en días hasta la próxima revisión
+      easeFactor: 2.5,   // Factor de facilidad (estándar de SM-2)
+      nextReviewDate: new Date().toISOString(), // La primera revisión es inmediata
+    };
+    return this.dbManager.addItem("flashcards", newCard);
+  }
+
+  /**
+   * Obtiene todas las tarjetas pendientes de revisión hasta la fecha actual.
+   * @param {number|null} deckId - Si se proporciona, filtra las tarjetas por ID de mazo.
+   * @returns {Promise<Array>} - Una promesa que se resuelve con un array de tarjetas pendientes.
+   */
+  async getDueCards(deckId = null) {
+    const now = new Date().toISOString();
+    // Creamos un rango que incluye todas las fechas desde el inicio de los tiempos hasta 'ahora'.
+    const query = IDBKeyRange.upperBound(now);
+    
+    // Usamos el nuevo método para consultar el índice de forma eficiente.
+    const dueCards = await this.dbManager.getItemsByIndex('flashcards', 'nextReviewDateIdx', query);
+
+    // Si se especificó un mazo, filtramos los resultados.
+    if (deckId) {
+      return dueCards.filter(card => card.deckId === deckId);
+    }
+    
+    return dueCards;
   }
 
   async getFlashcardsByDeck(deckId) {
@@ -104,7 +115,6 @@ export default class StorageService {
   }
 
   // --- Métodos Genéricos ---
-
   async getAllItems(storeName) {
     return this.dbManager.getAllItems(storeName);
   }

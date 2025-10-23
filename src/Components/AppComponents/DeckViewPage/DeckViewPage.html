@@ -5,13 +5,16 @@
             <h1 id="deck-name">Loading Deck...</h1>
         </div>
         <div class="header-right">
-            <button id="study-button" class="primary-button">Study Randomized</button>
+            <!-- --- INICIO DEL CAMBIO --- -->
+            <!-- Nuevo botón para el modo de estudio libre/personalizado -->
+            <button id="custom-study-button" class="secondary-button">Custom Study</button>
+            <!-- Botón principal para la revisión SRS -->
+            <button id="study-button" class="primary-button">Review Due Cards</button>
+            <!-- --- FIN DEL CAMBIO --- -->
         </div>
     </header>
-
     <main>
-        <div id="cards-grid" class="grid-container">
-            <!-- Las tarjetas de este mazo se insertarán aquí -->
-        </div>
+        <div id="cards-grid" class="grid-container"></div>
     </main>
+    <div id="modal-container"></div>
 </div>
