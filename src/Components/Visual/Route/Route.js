@@ -1,108 +1,104 @@
 export default class Route extends HTMLElement {
-// ... (constructor, init, getters/setters se mantienen igual)
-   constructor(props) {
-      super();
-      this.props = props;
-      this.rendered = false;
-   }
+    constructor(props) {
+        super();
+        this.props = props || {};
+        this.rendered = false;
+        // LOG: Ver cuándo se crea una instancia de Route
+        console.log(`[Route] Constructor para path: ${this.props.path}`);
+    }
 
-   init() {
-      if (!this.props.path) {
-         this.props.path = ' ';
-      }
+    init() {
+        if (!this.props.path) this.props.path = ' ';
+        if (!this.props.component) {
+            const routeInfo = slice.router.pathToRouteMap.get(this.props.path);
+            this.props.component = routeInfo ? routeInfo.component : ' ';
+        }
+    }
 
-      if (!this.props.component) {
-         this.props.component = slice.router.pathToRouteMap.get(this.props.path).component || ' ';
-      }
-   }
+    matchPath(pattern, currentPath) {
+        const params = {};
+        const patternParts = pattern.split('/').filter(p => p);
+        const pathParts = currentPath.split('/').filter(p => p);
 
-   get path() {
-      return this.props.path;
-   }
+        if (patternParts.length !== pathParts.length) return null;
 
-   set path(value) {
-      this.props.path = value;
-   }
+        for (let i = 0; i < patternParts.length; i++) {
+            const patternPart = patternParts[i];
+            const pathPart = pathParts[i];
 
-   get component() {
-      return this.props.component;
-   }
-
-   set component(value) {
-      this.props.component = value;
-   }
-
-
-   async render() {
-      // --- INICIO DE LA MODIFICACIÓN ---
-
-      // 1. Obtenemos la ruta actual y sus parámetros del router principal
-      const currentRoute = slice.router.match(window.location.pathname);
-      const params = currentRoute ? currentRoute.params : {};
-
-      // 2. Preparamos las props que se pasarán al componente
-      const componentProps = {
-         sliceId: this.props.component,
-         params: params // Inyectamos los parámetros de la URL
-      };
-
-      // --- FIN DE LA MODIFICACIÓN ---
-
-      if (Route.componentCache[this.props.component]) {
-         const cachedComponent = Route.componentCache[this.props.component];
-         this.innerHTML = '';
-
-         // Actualizamos las props del componente cacheado
-         slice.controller.setComponentProps(cachedComponent, componentProps);
-
-         if (cachedComponent.update) {
-            await cachedComponent.update();
-         }
-
-         this.appendChild(cachedComponent);
-      } else {
-         if (!this.props.component) {
-            return;
-         }
-
-         if (!slice.controller.componentCategories.has(this.props.component)) {
-            slice.logger.logError(`${this.sliceId}`, `Component ${this.props.component} not found`);
-            return;
-         }
-
-         // 3. Pasamos las props completas al construir el componente
-         const component = await slice.build(this.props.component, componentProps);
-
-         this.innerHTML = '';
-         this.appendChild(component);
-         Route.componentCache[this.props.component] = component;
-      }
-      this.rendered = true;
-   }
-
-   async renderIfCurrentRoute() {
-// ... (el resto del archivo se mantiene igual)
-      if (this.props.path === window.location.pathname) {
-         if (this.rendered) {
-            if (Route.componentCache[this.props.component]) {
-               const cachedComponent = Route.componentCache[this.props.component];
-               if (cachedComponent.update) {
-                  await cachedComponent.update();
-               }
-               return true;
+            if (patternPart.startsWith('${') && patternPart.endsWith('}')) {
+                const paramName = patternPart.slice(2, -1);
+                params[paramName] = pathPart;
+            } else if (patternPart !== pathPart) {
+                return null;
             }
-         }
-         await this.render();
-         return true;
-      }
-      return false;
-   }
+        }
+        return { params };
+    }
 
-   removeComponent() {
-      delete Route.componentCache[this.props.component];
-      this.innerHTML = '';
-      this.rendered = false;
-   }
+    async render() {
+        const currentPath = window.location.pathname;
+        console.log(`[Route ${this.props.path}] Render llamado. URL actual: ${currentPath}`);
+
+        const match = this.matchPath(this.props.path, currentPath);
+
+        if (!match) {
+            console.log(`[Route ${this.props.path}] NO COINCIDE. Limpiando.`);
+            this.removeComponent(currentPath);
+            return;
+        }
+
+        console.log(`[Route ${this.props.path}] SÍ COINCIDE. Parámetros extraídos:`, match.params);
+        
+        const cacheKey = currentPath;
+        console.log(`[Route ${this.props.path}] Usando clave de caché: ${cacheKey}`);
+
+        const componentProps = {
+            sliceId: this.props.component,
+            params: match.params || {}
+        };
+
+        if (Route.componentCache[cacheKey]) {
+            const cachedComponent = Route.componentCache[cacheKey];
+            console.log(`[Route ${this.props.path}] Componente encontrado en caché. Reutilizando.`);
+            this.innerHTML = '';
+            this.appendChild(cachedComponent);
+        } else {
+            console.log(`[Route ${this.props.path}] Componente NO encontrado en caché. Construyendo uno nuevo.`);
+            if (!this.props.component || !slice.controller.componentCategories.has(this.props.component)) {
+                slice.logger.logError(`${this.sliceId}`, `Component ${this.props.component} not found`);
+                return;
+            }
+            
+            const component = await slice.build(this.props.component, componentProps);
+            
+            if (component) {
+                console.log(`[Route ${this.props.path}] Componente construido con éxito.`);
+                this.innerHTML = '';
+                this.appendChild(component);
+                Route.componentCache[cacheKey] = component;
+            }
+        }
+        this.rendered = true;
+    }
+
+    async renderIfCurrentRoute() {
+        const match = this.matchPath(this.props.path, window.location.pathname);
+        if (match) {
+            if (!this.rendered) {
+                await this.render();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    removeComponent(path) {
+        console.log(`[Route ${this.props.path}] removeComponent llamado. Clave a borrar: ${path}`);
+        delete Route.componentCache[path];
+        this.innerHTML = '';
+        this.rendered = false;
+    }
 }
 
 Route.componentCache = {};
