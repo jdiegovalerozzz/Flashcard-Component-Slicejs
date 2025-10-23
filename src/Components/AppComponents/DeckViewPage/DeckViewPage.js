@@ -65,11 +65,9 @@ export default class DeckViewPage extends HTMLElement {
             this.appendChild(flashcardModal);
 
             for (const card of cards) {
-                // --- INICIO DEL CAMBIO ---
                 const cardWrapper = await CardRenderer.createCardWrapper({
                     card: card,
                     flashcardModal: flashcardModal,
-                    // Aquí definimos la función que se ejecutará al hacer clic en el botón de borrar.
                     onDelete: async (cardId, wrapperElement) => {
                         if (confirm('¿Estás seguro de que quieres eliminar esta tarjeta?')) {
                             try {
@@ -85,7 +83,6 @@ export default class DeckViewPage extends HTMLElement {
                         }
                     }
                 });
-                // --- FIN DEL CAMBIO ---
                 this.cardsGrid.appendChild(cardWrapper);
             }
         }

@@ -37,7 +37,7 @@ export default class CardRenderer {
         
         if (onDelete && typeof onDelete === 'function') {
             deleteButton.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que el clic se propague a la tarjeta y abra el modal.
+                e.stopPropagation(); 
                 onDelete(card.id, wrapper);
             });
         } else {
