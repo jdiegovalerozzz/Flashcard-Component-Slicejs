@@ -36,6 +36,9 @@ export default class DeckViewPage extends HTMLElement {
         const studyButton = this.querySelector('#study-button');
         const customStudyButton = this.querySelector('#custom-study-button');
 
+        customStudyButton.classList.remove('secondary-button');
+        customStudyButton.classList.add('primary-button');
+
         backButton.onclick = () => slice.router.navigate('/');
 
         if (!this.deckId || isNaN(this.deckId)) {
@@ -95,7 +98,7 @@ export default class DeckViewPage extends HTMLElement {
             sessionStorage.setItem('studyMode', 'cram');
             slice.router.navigate(`/practice/${this.deckId}`);
         };
-        
+
         console.log('[DeckViewPage] Renderizado de contenido completado.');
     }
 }

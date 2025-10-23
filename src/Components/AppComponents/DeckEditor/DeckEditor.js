@@ -39,27 +39,21 @@ export default class DeckEditor extends HTMLElement {
             { value: 'Advanced', text: 'Advanced' }
         ];
 
-        // --- INICIO DEL CAMBIO ---
-
-        // 1. Construimos el componente SIN el valor inicial.
         this.deckDifficultySelect = await slice.build('Select', {
             label: 'Select Difficulty',
             options: difficultyOptions
         });
 
-        // 2. Buscamos el objeto de opción que queremos seleccionar.
         const selectedDifficulty = difficultyOptions.find(opt => opt.value === this.deckToEdit.difficulty);
-
-        // 3. Asignamos el valor DESPUÉS de que el componente ha sido construido.
-        // Esto fuerza la ejecución del 'setter' en Select.js.
         if (selectedDifficulty) {
             this.deckDifficultySelect.value = selectedDifficulty;
         }
-        
-        // --- FIN DEL CAMBIO ---
 
-        const saveButton = await slice.build('Button', { value: 'Update Deck' });
-        saveButton.addEventListener('click', () => this.handleUpdate());
+        const saveButton = await slice.build('Button', {
+            value: 'Update Deck',
+            customColor: { button: '#38a169', label: '#ffffff' },
+            onClickCallback: async () => await this.handleUpdate()
+        });
 
         mainContainer.append(this.deckNameInput, this.deckDifficultySelect, saveButton);
     }
