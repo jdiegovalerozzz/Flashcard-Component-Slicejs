@@ -10,12 +10,14 @@ export default class FlashcardModal extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
 
-    // Services
     this.audioRecorder = new AudioRecorderService();
     this.storageService = new StorageService();
 
     this.currentCard = null;
     this.currentAudioUrl = null;
+    // --- INICIO DEL CAMBIO: Propiedad para el reproductor de audio ---
+    this.audioPlayer = null; 
+    // --- FIN DEL CAMBIO ---
   }
 
   async init() {
@@ -30,15 +32,12 @@ export default class FlashcardModal extends HTMLElement {
     this.audioPlayerContainer = this.querySelector('#audio-player-container');
     this.deleteAudioButton = this.querySelector('#delete-audio-btn');
 
-    // Events
     this.closeButton.addEventListener('click', () => this.hide());
     this.overlay.addEventListener('click', (e) => {
       if (e.target === this.overlay) this.hide();
     });
     this.audioControlButton.addEventListener('click', () => this.handleAudioControlClick());
-
     this.deleteAudioButton.addEventListener('click', () => this.handleDeleteAudioClick());
-
   }
 
   async show(cardData) {
@@ -68,7 +67,13 @@ export default class FlashcardModal extends HTMLElement {
     this.cardDisplayArea.innerHTML = '';
     this.currentCard = null;
 
-    // Memory cleaning for the audio URL
+    // --- INICIO DEL CAMBIO: Detener el audio si se está reproduciendo al cerrar ---
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer = null;
+    }
+    // --- FIN DEL CAMBIO ---
+
     if (this.currentAudioUrl) {
       URL.revokeObjectURL(this.currentAudioUrl);
       this.currentAudioUrl = null;
@@ -79,18 +84,14 @@ export default class FlashcardModal extends HTMLElement {
     const audioBlob = this.currentCard.audioBlob;
 
     if (audioBlob && audioBlob instanceof Blob) {
-      //  There's a saved audio
       this.audioControlButton.textContent = 'Play Audio';
       this.audioControlButton.disabled = false;
       this.deleteAudioButton.style.display = 'inline-block';
 
-
-      // Create url to reproductor
       if (this.currentAudioUrl) URL.revokeObjectURL(this.currentAudioUrl);
       this.currentAudioUrl = URL.createObjectURL(audioBlob);
 
     } else {
-      // No audio
       this.audioControlButton.textContent = 'Record Audio';
       this.audioControlButton.disabled = false;
       this.deleteAudioButton.style.display = 'none';
@@ -98,6 +99,17 @@ export default class FlashcardModal extends HTMLElement {
   }
 
   async handleAudioControlClick() {
+    // --- INICIO DEL CAMBIO: Lógica de reproducción/detención mejorada ---
+    // Si el audio se está reproduciendo, lo detenemos.
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer.currentTime = 0; // Reiniciar para la próxima reproducción
+      this.audioPlayer = null;
+      this.audioControlButton.textContent = 'Play Audio';
+      return;
+    }
+    // --- FIN DEL CAMBIO ---
+
     const state = this.audioRecorder.getState();
 
     if (state === 'recording') {
@@ -108,25 +120,31 @@ export default class FlashcardModal extends HTMLElement {
       if (newAudioBlob) {
         this.currentCard.audioBlob = newAudioBlob;
         await this.storageService.updateCard(this.currentCard);
-
-        // Actualizar la UI
         this.updateAudioState();
-        this.createAudioPreview(newAudioBlob);
       } else {
-        // Hubo un error, revertir UI
         this.updateAudioState();
       }
 
     } else if (this.currentCard.audioBlob) {
-      const audio = new Audio(this.currentAudioUrl);
-      audio.play();
+      // --- INICIO DEL CAMBIO: Crear, guardar y reproducir el audio ---
+      this.audioPlayer = new Audio(this.currentAudioUrl);
+      
+      // Evento para cuando el audio termina por sí solo
+      this.audioPlayer.addEventListener('ended', () => {
+        this.audioPlayer = null;
+        this.audioControlButton.textContent = 'Play Audio';
+      }, { once: true });
+
+      this.audioPlayer.play();
+      this.audioControlButton.textContent = 'Stop Audio';
+      // --- FIN DEL CAMBIO ---
 
     } else {
       // Start recording
       const success = await this.audioRecorder.startRecording();
       if (success) {
         this.audioControlButton.textContent = 'Stop Recording';
-        this.audioPlayerContainer.innerHTML = ''; // Cleaning
+        this.audioPlayerContainer.innerHTML = '';
       }
     }
   }
@@ -135,14 +153,19 @@ export default class FlashcardModal extends HTMLElement {
     if (!this.currentCard || !this.currentCard.audioBlob) return;
 
     if (confirm('Are you sure you want to delete this audio recording? This action cannot be undone.')) {
-      // Update flashCard state
+      // --- INICIO DEL CAMBIO: Detener el audio si se está reproduciendo antes de borrar ---
+      if (this.audioPlayer) {
+        this.audioPlayer.pause();
+        this.audioPlayer = null;
+      }
+      // --- FIN DEL CAMBIO ---
+      
       this.currentCard.audioBlob = null;
 
       try {
         await this.storageService.updateCard(this.currentCard);
         console.log('Audio deleted successfully from the database.');
 
-        // Update UI
         this.audioPlayerContainer.innerHTML = '';
         if (this.currentAudioUrl) {
           URL.revokeObjectURL(this.currentAudioUrl);
@@ -157,18 +180,8 @@ export default class FlashcardModal extends HTMLElement {
     }
   }
 
-  createAudioPreview(blob) {
-    const url = URL.createObjectURL(blob);
-    const audioPlayer = document.createElement('audio');
-    audioPlayer.controls = true;
-    audioPlayer.src = url;
-
-    this.audioPlayerContainer.innerHTML = ''; // Cleaning
-    this.audioPlayerContainer.appendChild(audioPlayer);
-
-    if (this.currentAudioUrl) URL.revokeObjectURL(this.currentAudioUrl);
-    this.currentAudioUrl = url;
-  }
+  // El método createAudioPreview ya no es necesario, ya que no mostramos un reproductor con controles.
+  // Puedes eliminarlo si lo deseas para limpiar el código.
 }
 
 customElements.define("slice-flashcardmodal", FlashcardModal);
