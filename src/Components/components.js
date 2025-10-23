@@ -1,4 +1,5 @@
 const components = {
+  "DeckEditor": "AppComponents",
   "DeckViewPage": "AppComponents",
   "FlashcardCreator": "AppComponents",
   "HomePage": "AppComponents",

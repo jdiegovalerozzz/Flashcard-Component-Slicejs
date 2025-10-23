@@ -7,7 +7,6 @@ export default class HomePage extends HTMLElement {
     constructor(props) {
         super();
         slice.attachTemplate(this);
-        // Corregimos el constructor para que sea más robusto
         this.props = props || {};
         this.storageService = new StorageService();
     }
@@ -15,18 +14,15 @@ export default class HomePage extends HTMLElement {
     async init() {
         await this.storageService.init();
 
-        // Guardamos las referencias como propiedades de la instancia
         this.decksGrid = this.querySelector('#decks-grid');
         this.allCardsGrid = this.querySelector('#all-cards-grid');
         this.modalContainer = this.querySelector('#modal-container');
         const addCardButton = this.querySelector('#add-card-button');
         const settingsButton = this.querySelector('#settings-button');
 
-        // Construimos el modal una sola vez
         this.flashcardModal = await slice.build('FlashcardModal', {});
         this.modalContainer.appendChild(this.flashcardModal);
 
-        // Configuramos los listeners una sola vez
         addCardButton.addEventListener('click', () => {
             slice.router.navigate('/create-flashcard');
         });
@@ -35,23 +31,15 @@ export default class HomePage extends HTMLElement {
             slice.router.navigate('/settings');
         });
 
-        // Renderizamos el contenido por primera vez
         await this.renderDashboard();
     }
 
-    // --- INICIO DEL CAMBIO ---
-    /**
-     * El router llamará a este método cuando se navegue de vuelta a HomePage.
-     * Se encarga de refrescar el contenido.
-     */
     async update() {
         console.log('[HomePage] Update llamado. Refrescando el dashboard...');
         await this.renderDashboard();
     }
-    // --- FIN DEL CAMBIO ---
 
     async renderDashboard() {
-        // Ahora usamos las referencias guardadas en 'this'
         this.decksGrid.innerHTML = '';
         this.allCardsGrid.innerHTML = '';
 
@@ -74,7 +62,7 @@ export default class HomePage extends HTMLElement {
             for (const card of allCards) {
                 const cardWrapper = await CardRenderer.createCardWrapper({
                     card: card,
-                    flashcardModal: this.flashcardModal // Usamos el modal guardado
+                    flashcardModal: this.flashcardModal
                 });
                 this.allCardsGrid.appendChild(cardWrapper);
             }
@@ -95,6 +83,14 @@ export default class HomePage extends HTMLElement {
                 <button class="action-button delete">Delete</button>
             </div>
         `;
+
+        // --- INICIO DEL CAMBIO ---
+        const editButton = cardEl.querySelector('.action-button.edit');
+        editButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evita que el clic navegue a la página del mazo.
+            slice.router.navigate(`/edit-deck/${deck.id}`);
+        });
+        // --- FIN DEL CAMBIO ---
 
         const deleteButton = cardEl.querySelector('.action-button.delete');
         deleteButton.addEventListener('click', async (e) => {

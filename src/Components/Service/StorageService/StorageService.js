@@ -48,6 +48,10 @@ export default class StorageService {
     return this.dbManager.getAllItems("decks");
   }
 
+  async updateDeck(deckData) {
+    return this.dbManager.updateItem('decks', deckData);
+  }
+
   async getDeck(deckId) {
     return this.dbManager.getItem("decks", deckId);
   }

@@ -23,6 +23,9 @@ const routes = [
    {
       path: '/edit-flashcard/${id}',
       component: 'FlashcardCreator'
+   },
+   { 
+      path: '/edit-deck/${id}', component: 'DeckEditor'
    }
 ];
 
