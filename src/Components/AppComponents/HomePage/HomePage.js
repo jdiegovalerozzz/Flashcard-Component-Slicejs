@@ -50,13 +50,10 @@ export default class HomePage extends HTMLElement {
             allCardsGrid.innerHTML = '<p>No flashcards found yet.</p>';
         } else {
             for (const card of allCards) {
-                // --- INICIO DEL CAMBIO ---
-                // Se envuelven los argumentos en un solo objeto {}
                 const cardWrapper = await CardRenderer.createCardWrapper({
                     card: card,
                     flashcardModal: flashcardModal
                 });
-                // --- FIN DEL CAMBIO ---
                 allCardsGrid.appendChild(cardWrapper);
             }
         }
